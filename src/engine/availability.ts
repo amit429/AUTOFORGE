@@ -42,6 +42,7 @@ function exclusive(option: (Regional & { n: string }) | undefined, region: Regio
 export interface BuildContext {
   body?: BodyTypeId;
   seating?: SeatingId;
+  roof?: Build['roof'];
 }
 
 export function availability<K extends OptionKey>(
@@ -50,7 +51,7 @@ export function availability<K extends OptionKey>(
   region: RegionId,
   ctx: BuildContext = {},
 ): Availability {
-  const { body, seating } = ctx;
+  const { body, seating, roof } = ctx;
   const R = REGIONS[region];
   switch (key) {
     case 'paint':
@@ -98,6 +99,10 @@ export function availability<K extends OptionKey>(
           }
         : OK;
     }
+    case 'headliner':
+      return roof === 'glass' && value !== 'standard'
+        ? { ok: false, reason: 'A panoramic glass roof has no headliner: choose a solid roof first.' }
+        : OK;
     case 'comfort': {
       const list = value as Build['comfort'];
       if (list.some((c) => !COMFORTS[c]))

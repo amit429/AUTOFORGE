@@ -88,6 +88,7 @@ function ComfortRow({ id }: { id: ComfortId }) {
 
 export function DetailsStep() {
   const region = useBuild((st) => st.build.region);
+  const ev = useEvaluation();
   return (
     <>
       <Block title="Steering wheel" em="steer">
@@ -111,6 +112,7 @@ export function DetailsStep() {
             v: k,
             n: HEADLINERS[k].n,
             sub: priceTag(HEADLINERS[k].p, region),
+            why: ev.available.headliner?.[k]?.reason,
             icon: <HeadlinerIcon colour={HEADLINERS[k].c} stars={k === 'starlight'} />,
           }))}
         />

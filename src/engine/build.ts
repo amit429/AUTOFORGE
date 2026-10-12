@@ -160,7 +160,7 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
   const value = coerce(key, raw);
   if (value === undefined) return { ok: false, reason: 'That option is not available.' };
   if (key === 'region') return { ok: false, reason: 'Use applyRegion to change region.' };
-  const av = availability(key, value, b.region, { body: b.body, seating: b.seating });
+  const av = availability(key, value, b.region, { body: b.body, seating: b.seating, roof: b.roof });
   if (!av.ok) return { ok: false, reason: av.reason ?? 'That option is not available.' };
   if (sameValue(b[key], value)) return { ok: true, changed: false, build: b };
 
@@ -186,6 +186,12 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
     }
   }
   // Comfort features that need a particular seating layout come off when the layout changes.
+  // A glass roof has no headliner, so a lined or starlit one goes back to standard.
+  if (key === 'roof' && value === 'glass' && b.headliner !== 'standard') {
+    prev.headliner = b.headliner;
+    next.headliner = 'standard';
+    build.headliner = 'standard';
+  }
   if (key === 'body' || key === 'seating') {
     const kept = build.comfort.filter(
       (c) => !COMFORTS[c].needs || COMFORTS[c].needs!.includes(build.seating),
@@ -255,6 +261,13 @@ export function fitBody(b: Build): Build {
   const mods = b.mods.filter((m) => MODS[m].bodies.includes(b.body));
   const seating = body.layouts.includes(b.seating) ? b.seating : body.seating;
   const comfort = b.comfort.filter((c) => !COMFORTS[c].needs || COMFORTS[c].needs!.includes(seating));
-  if (seating === b.seating && mods.length === b.mods.length && comfort.length === b.comfort.length) return b;
-  return { ...cloneBuild(b), seating, mods, comfort };
+  const headliner = b.roof === 'glass' ? 'standard' : b.headliner;
+  if (
+    seating === b.seating &&
+    mods.length === b.mods.length &&
+    comfort.length === b.comfort.length &&
+    headliner === b.headliner
+  )
+    return b;
+  return { ...cloneBuild(b), seating, mods, comfort, headliner };
 }

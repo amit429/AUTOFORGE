@@ -118,6 +118,8 @@ export const useBuild = create<BuildState>((set, get) => ({
         .map((c) => COMFORTS[c].n.toLowerCase());
       if (gone.length) toast(`Removed ${gone.join(', ')}: needs a different seating layout.`, 'warn');
     }
+    if (key === 'roof' && r.next.headliner)
+      toast('Headliner set to standard: a panoramic glass roof has no headliner.', 'warn');
     if (key === 'body' && r.next.mods && r.prev.mods) {
       const gone = r.prev.mods.filter((m) => !r.next.mods!.includes(m)).map((m) => MODS[m].n.toLowerCase());
       if (gone.length)

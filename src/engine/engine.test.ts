@@ -221,6 +221,16 @@ describe('pricing', () => {
     expect(optionsUSD(extra) - optionsUSD(build())).toBe(1200 + 3800 + 1600 + 500);
     expect(normalize({ comfort: ['jacuzzi'] }).comfort).toEqual([]);
   });
+  it('drops a lined headliner when the roof turns to glass', () => {
+    const r = setOption(build({ headliner: 'starlight' }), 'roof', 'glass');
+    if (!r.ok || !r.changed) throw new Error('expected change');
+    expect(r.build.headliner).toBe('standard');
+    expect(setOption(r.build, 'headliner', 'starlight')).toEqual({
+      ok: false,
+      reason: 'A panoramic glass roof has no headliner: choose a solid roof first.',
+    });
+    expect(normalize({ roof: 'glass', headliner: 'alcantara' }).headliner).toBe('standard');
+  });
   it('rejects an unknown body style', () => {
     expect(setOption(build(), 'body', 'tank' as Build['body']).ok).toBe(false);
     expect(normalize({ body: 'tank' }).body).toBe('coupe');

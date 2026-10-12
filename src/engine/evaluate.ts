@@ -89,7 +89,11 @@ export function evaluate(b: Build): Evaluation {
     const row: Record<string, Availability> = {};
     for (const v of values) {
       const value = key === 'size' ? Number(v) : v;
-      row[v] = availability(key, value as Build[typeof key], b.region, { body: b.body, seating: b.seating });
+      row[v] = availability(key, value as Build[typeof key], b.region, {
+        body: b.body,
+        seating: b.seating,
+        roof: b.roof,
+      });
     }
     available[key] = row;
   }
