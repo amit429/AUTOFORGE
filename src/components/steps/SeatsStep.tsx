@@ -1,10 +1,11 @@
 'use client';
 
-import { QUILTS, SEAT_COLOURS, SEAT_MATERIALS, STITCHES, keysOf } from '@/data/options';
+import { BODY_TYPES, QUILTS, SEATINGS, SEAT_COLOURS, SEAT_MATERIALS, STITCHES, keysOf } from '@/data/options';
 import { priceTag, stitchHex } from '@/engine';
-import { Block, Cards, Segmented, Swatches } from '@/components/config/controls';
+import { Block, Cards, Note, Segmented, Swatches } from '@/components/config/controls';
 import { useEvaluation } from '@/components/config/useEngine';
 import { useBuild } from '@/store/build';
+import { SeatLayoutIcon } from './SeatLayoutIcon';
 
 export function SeatsStep() {
   const b = useBuild((st) => st.build);
@@ -13,8 +14,24 @@ export function SeatsStep() {
   const mats = keysOf(SEAT_MATERIALS).filter(
     (k) => !SEAT_MATERIALS[k].rg || SEAT_MATERIALS[k].rg === b.region,
   );
+  const layouts = BODY_TYPES[b.body].layouts;
   return (
     <>
+      <Block title="Layout" em="seating">
+        <Cards
+          k="seating"
+          items={layouts.map((k) => ({
+            v: k,
+            n: SEATINGS[k].n,
+            sub: priceTag(SEATINGS[k].p, b.region),
+            icon: <SeatLayoutIcon layout={k} />,
+          }))}
+        />
+      </Block>
+      <Note>
+        {SEATINGS[b.seating].d}
+        {layouts.length === 1 && ` The ${BODY_TYPES[b.body].n} is offered with this layout only.`}
+      </Note>
       <Block title="Material" em="seatMat">
         <Segmented
           k="seatMat"

@@ -2,6 +2,7 @@ import {
   ACCENTS,
   AMBIENT_MODES,
   BODY_TYPES,
+  SEATINGS,
   CALIPERS,
   FINISHES,
   GRILLES,
@@ -92,6 +93,7 @@ export function lineItems(b: Build): LineGroup[] {
     {
       title: 'Interior',
       items: [
+        { label: 'Seating', detail: SEATINGS[b.seating].n, colour: null, usd: SEATINGS[b.seating].p },
         {
           label: 'Seats',
           detail: `${SEAT_MATERIALS[b.seatMat].n} in ${lower(SEAT_COLOURS[b.seatCol].n)}`,

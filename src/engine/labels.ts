@@ -2,6 +2,7 @@ import {
   ACCENTS,
   AMBIENT_MODES,
   BODY_TYPES,
+  SEATINGS,
   CALIPERS,
   CUSTOM_PAINT_USD,
   FINISHES,
@@ -31,6 +32,7 @@ import { spoilerUSD } from './pricing';
 export const KEY_NAMES: Record<OptionKey, string> = {
   region: 'Region',
   body: 'Body style',
+  seating: 'Seating',
   paint: 'Paint',
   finish: 'Finish',
   livery: 'Livery',
@@ -124,6 +126,8 @@ export function optionLabel(key: OptionKey, b: Build): OptionLabel {
       return { name: b.packs.length ? b.packs.map((k) => PACKS[k].n).join(', ') : 'No packs', usd: null };
     case 'region':
       return { name: b.region, usd: null };
+    case 'seating':
+      return { name: SEATINGS[b.seating].n, usd: SEATINGS[b.seating].p };
     case 'body':
       // The body sets the base price; it is not an add-on, so it carries no "+" price here.
       return { name: BODY_TYPES[b.body].n, usd: null };

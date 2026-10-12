@@ -4,6 +4,7 @@ import raw from './options.json';
 
 export type RegionId = keyof typeof raw.regions;
 export type BodyTypeId = keyof typeof raw.bodyTypes;
+export type SeatingId = keyof typeof raw.seatings;
 export type PaintId = keyof typeof raw.paints;
 export type FinishId = keyof typeof raw.finishes;
 export type LiveryId = keyof typeof raw.liveries;
@@ -44,6 +45,7 @@ export type PaintChoice = PaintId | 'custom';
 export interface Build {
   region: RegionId;
   body: BodyTypeId;
+  seating: SeatingId;
   paint: PaintChoice;
   custom: string;
   finish: FinishId;
@@ -161,10 +163,18 @@ export const CUSTOM_PAINT_USD: number = raw.meta.customPaintPriceUSD;
 
 export interface BodyType extends Priced {
   d: string;
+  /** Seat layouts this body can take, and its default. */
+  layouts: SeatingId[];
+  seating: SeatingId;
+}
+
+export interface Seating extends Priced {
+  d: string;
 }
 
 /** Body styles. `p` is the full base price of the car in USD for that body. */
 export const BODY_TYPES = raw.bodyTypes as Record<BodyTypeId, BodyType>;
+export const SEATINGS = raw.seatings as Record<SeatingId, Seating>;
 export const PAINTS = raw.paints as Record<PaintId, Paint>;
 export const FINISHES = raw.finishes as Record<FinishId, Finish>;
 export const LIVERIES = raw.liveries as Record<LiveryId, Livery>;

@@ -1,6 +1,7 @@
 import {
   ACCENTS,
   BODY_TYPES,
+  SEATINGS,
   AMBIENT_MODES,
   CALIPERS,
   FINISHES,
@@ -31,6 +32,7 @@ import { lineItems, type LineGroup } from './summary';
 /** Every discrete option value per key, as strings. */
 export const OPTION_VALUES: Partial<Record<OptionKey, string[]>> = {
   body: Object.keys(BODY_TYPES),
+  seating: Object.keys(SEATINGS),
   paint: [...Object.keys(PAINTS), 'custom'],
   finish: Object.keys(FINISHES),
   livery: Object.keys(LIVERIES),
@@ -70,7 +72,7 @@ export function evaluate(b: Build): Evaluation {
     const row: Record<string, Availability> = {};
     for (const v of values) {
       const value = key === 'size' ? Number(v) : v;
-      row[v] = availability(key, value as Build[typeof key], b.region);
+      row[v] = availability(key, value as Build[typeof key], b.region, b.body);
     }
     available[key] = row;
   }

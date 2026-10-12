@@ -665,6 +665,94 @@ export class CarModel {
     this.screenTex.needsUpdate = true;
   }
 
+  /** Seat parts currently in the cabin, rebuilt when the seating layout changes. */
+  private seatParts: Part[] = [];
+
+  /** Seats for the build's layout: front buckets, then benches or captain's chairs per row. */
+  private buildSeats() {
+    const g = this.geo;
+    const s = g.spec;
+    const floor = g.floorY;
+    const inner = g.innerHalf((s.aBase + s.cBase) / 2);
+    const sz = inner * 0.46;
+    const fs = s.aBase - 0.78;
+    const m = this.seatMat;
+    const cushion = (x: number, z: number, w: number) => mesh(boxAt(0.5, 0.12, w, x, floor + 0.065, z), m);
+    const back = (x: number, z: number, w: number, h = 0.46) =>
+      mesh(boxAt(0.12, h, w, x - 0.3, floor + 0.045 + h / 2, z, 0.2), m);
+    const head = (x: number, z: number, top: number) =>
+      mesh(boxAt(0.09, 0.13, 0.26, x - 0.38, top, z, 0.2), m);
+    const bucket = (x: number, z: number) => [
+      cushion(x, z, 0.46),
+      back(x, z, 0.46),
+      head(x, z, floor + 0.545),
+    ];
+    const captain = (x: number, z: number) => [
+      ...bucket(x, z),
+      mesh(boxAt(0.36, 0.05, 0.05, x - 0.02, floor + 0.2, z + 0.26), m),
+      mesh(boxAt(0.36, 0.05, 0.05, x - 0.02, floor + 0.2, z - 0.26), m),
+    ];
+    const bench = (x: number, w: number, heads: number[], h = 0.46) => [
+      cushion(x, 0, w),
+      back(x, 0, w, h),
+      ...heads.map((z) => head(x, z, floor + 0.045 + h + 0.02)),
+    ];
+    const add = (name: string, objs: THREE.Object3D[], off: [number, number, number]) => {
+      const grp = new THREE.Group();
+      objs.forEach((o) => grp.add(o));
+      this.seatParts.push(this.addPart(name, grp, off, this.cabin));
+    };
+    add('seat_fr', bucket(fs, sz), [0, 0.45, 0]);
+    add('seat_fl', bucket(fs, -sz), [0, 0.45, 0]);
+    const rs = fs - 0.9;
+    const ts = rs - 0.86;
+    const console2 = (x: number) => mesh(boxAt(0.5, 0.2, 0.22, x + 0.05, floor + 0.11, 0), this.dashMat);
+    switch (this.build.seating) {
+      case 'twoPlusTwo':
+        add('seat_rear', bench(fs - 0.82, inner * 1.3, [sz * 0.85, -sz * 0.85], 0.36), [-0.15, 0.36, 0]);
+        break;
+      case 'five':
+        add('seat_rear', bench(rs, inner * 1.5, [sz * 0.92, 0, -sz * 0.92]), [-0.15, 0.36, 0]);
+        break;
+      case 'lounge':
+        add(
+          'seat_rear',
+          [...captain(rs, sz * 1.05), ...captain(rs, -sz * 1.05), console2(rs)],
+          [-0.15, 0.36, 0],
+        );
+        break;
+      case 'six':
+        add('seat_rear', [...captain(rs, sz), ...captain(rs, -sz)], [-0.15, 0.36, 0]);
+        add('seat_third', [...captain(ts, sz), ...captain(ts, -sz)], [-0.3, 0.3, 0]);
+        break;
+      case 'seven':
+        add('seat_rear', bench(rs, inner * 1.5, [sz * 0.92, 0, -sz * 0.92]), [-0.15, 0.36, 0]);
+        add('seat_third', bench(ts, inner * 1.2, [sz * 0.75, -sz * 0.75], 0.4), [-0.3, 0.3, 0]);
+        break;
+      default:
+        break;
+    }
+  }
+
+  /** Swaps the seats for a new layout; the new ones rise into place. */
+  private rebuildSeats(animate: boolean) {
+    const e = this.P.body?.e ?? 0;
+    for (const p of this.seatParts) {
+      this.cabin.remove(p.o);
+      p.o.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
+      this.parts.splice(this.parts.indexOf(p), 1);
+      delete this.P[p.name];
+    }
+    this.seatParts = [];
+    this.buildSeats();
+    for (const p of this.seatParts) p.e = e;
+    if (!animate) return;
+    this.seatParts.forEach((p, i) => {
+      p.o.scale.set(1, 0.001, 1);
+      gsap.to(p.o.scale, { y: 1, duration: 0.7, delay: i * 0.08, ease: 'back.out(2)' });
+    });
+  }
+
   /** Interior fitted to the body: seats, dash, console, carpet, door cards and steering wheel. */
   private buildInterior(carpetMat: THREE.Material) {
     const g = this.geo;
@@ -678,35 +766,9 @@ export class CarModel {
       objs.forEach((o) => grp.add(o));
       return this.addPart(name, grp, off, this.cabin);
     };
-    const seat = (x: number, z: number, w: number) => [
-      mesh(boxAt(0.5, 0.12, w, x, floor + 0.065, z), this.seatMat),
-      mesh(boxAt(0.12, 0.46, w, x - 0.3, floor + 0.275, z, 0.2), this.seatMat),
-    ];
     const fs = s.aBase - 0.78;
     const sz = inner * 0.46;
-    for (const z of [sz, -sz]) {
-      cabinPart(
-        z > 0 ? 'seat_fr' : 'seat_fl',
-        [...seat(fs, z, 0.46), mesh(boxAt(0.09, 0.13, 0.26, fs - 0.38, floor + 0.545, z, 0.2), this.seatMat)],
-        [0, 0.45, 0],
-      );
-    }
-    // Bench rows behind the front seats, as many as the body has room for.
-    const bench = (name: string, x: number, off: [number, number, number]) =>
-      cabinPart(
-        name,
-        [
-          ...seat(x, 0, inner * 1.5),
-          mesh(boxAt(0.08, 0.11, 0.26, x - 0.38, floor + 0.465, sz * 0.92, 0.22), this.seatMat),
-          mesh(boxAt(0.08, 0.11, 0.26, x - 0.38, floor + 0.465, -sz * 0.92, 0.22), this.seatMat),
-        ],
-        off,
-      );
-    const fits = (x: number) => x - 0.4 > s.cBase - 0.35;
-    const rs = fs - 0.9;
-    if (s.rows >= 2 && fits(rs)) bench('seat_rear', rs, [-0.15, 0.36, 0]);
-    const ts = rs - 0.86;
-    if (s.rows >= 3 && fits(ts)) bench('seat_third', ts, [-0.3, 0.3, 0]);
+    this.buildSeats();
     const ambDash = new THREE.MeshBasicMaterial({ color: lin(this.build.amb), toneMapped: false });
     const ambDoor = new THREE.MeshBasicMaterial({ color: lin(this.build.amb), toneMapped: false });
     this.ambMats.push(ambDash, ambDoor);
@@ -1299,6 +1361,9 @@ export class CarModel {
         case 'amb':
           run.add('screen');
           break;
+        case 'seating':
+          run.add('seating');
+          break;
         case 'ambMode':
         case 'ambBri':
           break;
@@ -1349,6 +1414,9 @@ export class CarModel {
           break;
         case 'screen':
           this.drawScreen();
+          break;
+        case 'seating':
+          this.rebuildSeats(animate);
           break;
         case 'region':
           this.updDrive(animate);

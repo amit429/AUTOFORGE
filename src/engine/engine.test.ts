@@ -146,6 +146,28 @@ describe('pricing', () => {
       .find((i) => i.base);
     expect(base).toMatchObject({ detail: 'Halden SUV', usd: 88900 });
   });
+  it('fits the seating layout to the body and explains why a layout is locked', () => {
+    expect(availability('seating', 'seven', 'in', 'coupe')).toEqual({
+      ok: false,
+      reason: 'The Coupe does not take seven seats.',
+    });
+    expect(availability('seating', 'twoPlusTwo', 'in', 'sedan').reason).toBe('The Sedan does not take 2+2.');
+    expect(availability('seating', 'seven', 'in', 'mpv').ok).toBe(true);
+    const r = setOption(build(), 'body', 'mpv');
+    if (!r.ok || !r.changed) throw new Error('expected change');
+    expect(r.build.seating).toBe('seven');
+    expect(r.prev).toEqual({ body: 'coupe', seating: 'twoPlusTwo' });
+    expect(undoEntry(r.build, singleEntry('body', r.prev, r.next, r.build))).toEqual(build());
+    const keep = setOption(build({ body: 'suv', seating: 'seven' }), 'body', 'cruiser');
+    expect(keep.ok && keep.build.seating).toBe('seven');
+  });
+  it('prices seating layouts and repairs illegal ones from links', () => {
+    expect(
+      optionsUSD(build({ body: 'mpv', seating: 'lounge' })) -
+        optionsUSD(build({ body: 'mpv', seating: 'seven' })),
+    ).toBe(4800 - 1900);
+    expect(normalize({ body: 'supercar', seating: 'seven' }).seating).toBe('two');
+  });
   it('rejects an unknown body style', () => {
     expect(setOption(build(), 'body', 'tank' as Build['body']).ok).toBe(false);
     expect(normalize({ body: 'tank' }).body).toBe('coupe');

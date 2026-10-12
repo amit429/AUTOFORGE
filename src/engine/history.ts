@@ -1,5 +1,5 @@
 import type { Build, OptionKey } from '@/data/options';
-import { applyPatch, type Patch } from './build';
+import { applyPatch, fitBody, type Patch } from './build';
 import { KEY_NAMES, chipColour, optionLabel } from './labels';
 import { applyRegion } from './regions';
 
@@ -43,7 +43,7 @@ export const undoMessage = (e: HistoryEntry) =>
  * re-checked and anything no longer orderable falls back to a default.
  */
 export function undoEntry(b: Build, e: HistoryEntry): Build {
-  return applyRegion(applyPatch(b, e.prev), b.region).build;
+  return applyRegion(fitBody(applyPatch(b, e.prev)), b.region).build;
 }
 
 /** Keys an entry touched, so the 3D layer can play the right transitions on undo. */

@@ -1,6 +1,7 @@
 import {
   ACCENTS,
   BODY_TYPES,
+  SEATINGS,
   AMBIENT_MODES,
   CALIPERS,
   DEFAULT_BUILD,
@@ -53,6 +54,7 @@ export const sameValue = (a: unknown, b: unknown) =>
 const HEX = /^#[0-9a-f]{6}$/i;
 const CATALOGUE: Partial<Record<OptionKey, Record<string, unknown>>> = {
   body: BODY_TYPES,
+  seating: SEATINGS,
   finish: FINISHES,
   livery: LIVERIES,
   livCol: LIVERY_COLOURS,
@@ -121,7 +123,7 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
   const value = coerce(key, raw);
   if (value === undefined) return { ok: false, reason: 'That option is not available.' };
   if (key === 'region') return { ok: false, reason: 'Use applyRegion to change region.' };
-  const av = availability(key, value, b.region);
+  const av = availability(key, value, b.region, b.body);
   if (!av.ok) return { ok: false, reason: av.reason ?? 'That option is not available.' };
   if (sameValue(b[key], value)) return { ok: true, changed: false, build: b };
 
@@ -130,6 +132,15 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
   const build = cloneBuild(b);
   build[key] = value;
 
+  if (key === 'body') {
+    // A new body keeps the seating layout if it fits, otherwise takes the body's default.
+    const body = BODY_TYPES[value as Build['body']];
+    if (!body.layouts.includes(b.seating)) {
+      prev.seating = b.seating;
+      next.seating = body.seating;
+      build.seating = body.seating;
+    }
+  }
   if (key === 'packs') {
     const added = (value as Build['packs']).filter((p) => !b.packs.includes(p));
     if (added.includes('autobahn') && b.spoiler !== 'wing') {
@@ -180,5 +191,11 @@ export function normalize(input: unknown): Build {
     const v = coerce(key, src[key]);
     if (v !== undefined) (build as Record<OptionKey, unknown>)[key] = v;
   }
-  return build;
+  return fitBody(build);
+}
+
+/** Makes sure the seating layout is one the body takes, falling back to the body's default. */
+export function fitBody(b: Build): Build {
+  const body = BODY_TYPES[b.body];
+  return body.layouts.includes(b.seating) ? b : { ...b, packs: [...b.packs], seating: body.seating };
 }

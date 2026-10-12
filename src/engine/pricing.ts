@@ -2,6 +2,7 @@ import {
   ACCENTS,
   AMBIENT_MODES,
   BODY_TYPES,
+  SEATINGS,
   CALIPERS,
   CUSTOM_PAINT_USD,
   FINISHES,
@@ -44,6 +45,7 @@ export function optionsUSD(b: Build): number {
     spoilerUSD(b) +
     GRILLES[b.grille].p +
     LIGHT_SIGNATURES[b.sig].p +
+    SEATINGS[b.seating].p +
     SEAT_MATERIALS[b.seatMat].p +
     QUILTS[b.quilt].p +
     TRIMS[b.trim].p +

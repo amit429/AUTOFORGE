@@ -9,52 +9,134 @@
     "sedan": {
       "n": "Sedan",
       "d": "Four doors, a separate boot and room for five grown-ups.",
-      "p": 78600
+      "p": 78600,
+      "layouts": [
+        "five",
+        "lounge"
+      ],
+      "seating": "five"
     },
     "hatch": {
       "n": "Hatchback",
       "d": "Short and nimble, with a steep rear hatch that opens onto a flat load floor.",
-      "p": 42600
+      "p": 42600,
+      "layouts": [
+        "five"
+      ],
+      "seating": "five"
     },
     "coupe": {
       "n": "Coupe",
       "d": "Two doors, a long bonnet and a roof that falls away to a short tail.",
-      "p": 92400
+      "p": 92400,
+      "layouts": [
+        "twoPlusTwo",
+        "two"
+      ],
+      "seating": "twoPlusTwo"
     },
     "convertible": {
       "n": "Convertible",
       "d": "A two-door with a fabric soft top that folds away for open-air driving.",
-      "p": 98800
+      "p": 98800,
+      "layouts": [
+        "twoPlusTwo",
+        "two"
+      ],
+      "seating": "twoPlusTwo"
     },
     "compact": {
       "n": "Compact SUV",
       "d": "A raised crossover with SUV stance in a city-sized footprint.",
-      "p": 61400
+      "p": 61400,
+      "layouts": [
+        "five"
+      ],
+      "seating": "five"
     },
     "suv": {
       "n": "SUV",
       "d": "Tall, long and commanding, with a squared-off tail and a raised ride.",
-      "p": 88900
+      "p": 88900,
+      "layouts": [
+        "five",
+        "seven",
+        "lounge"
+      ],
+      "seating": "five"
     },
     "cruiser": {
       "n": "Cruiser",
       "d": "A boxy, upright off-roader built to go anywhere, with big tyres and high clearance.",
-      "p": 112500
+      "p": 112500,
+      "layouts": [
+        "five",
+        "seven",
+        "lounge"
+      ],
+      "seating": "five"
     },
     "pickup": {
       "n": "Pickup",
       "d": "A double cab up front and an open load bed behind, ready for work or play.",
-      "p": 74900
+      "p": 74900,
+      "layouts": [
+        "five",
+        "two"
+      ],
+      "seating": "five"
     },
     "mpv": {
       "n": "MPV",
       "d": "A tall people carrier with a long roof and three rows of seats.",
-      "p": 69300
+      "p": 69300,
+      "layouts": [
+        "seven",
+        "six",
+        "lounge"
+      ],
+      "seating": "seven"
     },
     "supercar": {
       "n": "Supercar",
       "d": "Low, wide and mid-engined, with the cabin pushed forward and two seats.",
-      "p": 214000
+      "p": 214000,
+      "layouts": [
+        "two"
+      ],
+      "seating": "two"
+    }
+  },
+  "seatings": {
+    "two": {
+      "n": "Two seats",
+      "d": "Just the driver and one passenger, with the space behind given to luggage.",
+      "p": 0
+    },
+    "twoPlusTwo": {
+      "n": "2+2",
+      "d": "Two front seats and two occasional rear seats for short trips.",
+      "p": 0
+    },
+    "five": {
+      "n": "Five seats",
+      "d": "Two front seats and a three-seat rear bench.",
+      "p": 0
+    },
+    "lounge": {
+      "n": "Four-seat lounge",
+      "d": "Two rear captain's chairs with a centre console between them.",
+      "p": 4800
+    },
+    "six": {
+      "n": "Six captain's chairs",
+      "d": "Three rows of two individual chairs with a walkway between.",
+      "p": 3200
+    },
+    "seven": {
+      "n": "Seven seats",
+      "d": "A three-seat middle bench and two more seats in a third row.",
+      "p": 1900
     }
   },
   "paints": {
@@ -1035,6 +1117,7 @@
   "defaultBuild": {
     "region": "in",
     "body": "coupe",
+    "seating": "twoPlusTwo",
     "paint": "silver",
     "custom": "#4f7d8c",
     "finish": "metallic",

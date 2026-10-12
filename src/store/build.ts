@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import {
+  BODY_TYPES,
   CABIN_STEPS,
   DEFAULT_BUILD,
   PACKS,
   REGIONS,
+  SEATINGS,
   STEPS,
   type Build,
   type OptionKey,
@@ -102,6 +104,8 @@ export const useBuild = create<BuildState>((set, get) => ({
       history: [...s.history, entry],
       change: change(Object.keys(r.next) as OptionKey[], build),
     }));
+    if (key === 'body' && r.next.seating)
+      toast(`Seating changed to ${SEATINGS[r.next.seating].n} to fit the ${BODY_TYPES[r.build.body].n}.`);
     return true;
   },
 

@@ -1,10 +1,13 @@
 import {
+  BODY_TYPES,
   LAMP_TINTS,
   LIVERIES,
   PAINTS,
   REGIONS,
+  SEATINGS,
   SEAT_MATERIALS,
   TRIMS,
+  type BodyTypeId,
   type Build,
   type OptionKey,
   type RegionId,
@@ -30,10 +33,15 @@ function exclusive(option: (Regional & { n: string }) | undefined, region: Regio
 }
 
 /**
- * Whether `value` can be ordered for `key` in `region`. This is the only place availability
- * is decided; the UI renders its answer and never re-derives it.
+ * Whether `value` can be ordered for `key` in `region` on the given body. This is the only place
+ * availability is decided; the UI renders its answer and never re-derives it.
  */
-export function availability<K extends OptionKey>(key: K, value: Build[K], region: RegionId): Availability {
+export function availability<K extends OptionKey>(
+  key: K,
+  value: Build[K],
+  region: RegionId,
+  body?: BodyTypeId,
+): Availability {
   const R = REGIONS[region];
   switch (key) {
     case 'paint':
@@ -60,6 +68,15 @@ export function availability<K extends OptionKey>(key: K, value: Build[K], regio
       return (value as number) < R.vlt
         ? { ok: false, reason: `In ${R.n}, side glass must let through at least ${R.vlt}% of light.` }
         : OK;
+    case 'seating': {
+      const seat = SEATINGS[value as keyof typeof SEATINGS];
+      if (!seat) return { ok: false, reason: 'That seating layout is not in the catalogue.' };
+      if (body && !BODY_TYPES[body].layouts.includes(value as Build['seating'])) {
+        const what = /^\d/.test(seat.n) ? seat.n : seat.n.charAt(0).toLowerCase() + seat.n.slice(1);
+        return { ok: false, reason: `The ${BODY_TYPES[body].n} does not take ${what}.` };
+      }
+      return OK;
+    }
     case 'packs': {
       const bad = (value as Build['packs']).find((p) => !R.packs.includes(p));
       return bad ? { ok: false, reason: `That pack is only offered in its own market, not in ${R.n}.` } : OK;
@@ -69,5 +86,9 @@ export function availability<K extends OptionKey>(key: K, value: Build[K], regio
   }
 }
 
-export const isAvailable = <K extends OptionKey>(key: K, value: Build[K], region: RegionId) =>
-  availability(key, value, region).ok;
+export const isAvailable = <K extends OptionKey>(
+  key: K,
+  value: Build[K],
+  region: RegionId,
+  body?: BodyTypeId,
+) => availability(key, value, region, body).ok;
