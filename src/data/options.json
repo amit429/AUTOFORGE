@@ -387,6 +387,44 @@
       "c": "#c29a45"
     }
   },
+  "graphics": {
+    "none": {
+      "n": "None",
+      "p": 0
+    },
+    "number": {
+      "n": "Race number",
+      "p": 1200
+    },
+    "flames": {
+      "n": "Flames",
+      "p": 2400
+    },
+    "slash": {
+      "n": "Slashes",
+      "p": 1400
+    },
+    "sweep": {
+      "n": "Sweep",
+      "p": 1600
+    },
+    "tribal": {
+      "n": "Tribal",
+      "p": 2200
+    },
+    "checker": {
+      "n": "Checker fade",
+      "p": 1800
+    },
+    "script": {
+      "n": "Script",
+      "p": 1100
+    },
+    "upload": {
+      "n": "Your own design",
+      "p": 2900
+    }
+  },
   "wheels": {
     "aero": {
       "n": "Aero disc",
@@ -1061,6 +1099,12 @@
       "d": "Lay a pattern over your paint. It is drawn by the paint itself, so it runs cleanly across every panel gap."
     },
     {
+      "id": "graphics",
+      "g": "Exterior",
+      "n": "Graphics",
+      "d": "Designs for the doors and the rear, drawn onto the panels so they follow every curve. Use one of ours or upload your own."
+    },
+    {
       "id": "wheels",
       "g": "Exterior",
       "n": "Wheels and brakes",
@@ -1124,6 +1168,10 @@
     "livery": "none",
     "livCol": "clay",
     "livScale": 1,
+    "doorArt": "none",
+    "rearArt": "none",
+    "artCol": "white",
+    "raceNo": 7,
     "wheel": "five",
     "size": 20,
     "wfin": "gun",

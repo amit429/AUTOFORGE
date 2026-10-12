@@ -6,6 +6,7 @@ import {
   CALIPERS,
   CUSTOM_PAINT_USD,
   FINISHES,
+  GRAPHICS,
   GRILLES,
   LIGHT_SIGNATURES,
   LIVERIES,
@@ -36,6 +37,8 @@ export function optionsUSD(b: Build): number {
     paintUSD(b) +
     FINISHES[b.finish].p +
     LIVERIES[b.livery].p +
+    GRAPHICS[b.doorArt].p +
+    GRAPHICS[b.rearArt].p +
     WHEELS[b.wheel].p +
     WHEEL_SIZE_USD[`${b.size}`] +
     WHEEL_FINISHES[b.wfin].p +

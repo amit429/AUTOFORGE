@@ -39,6 +39,9 @@ test('region, build, locked option, undo, region change', async ({ page, isMobil
     .getByRole('button', { name: /^Next: Livery/ })
     .click();
   await panel(page)
+    .getByRole('button', { name: /^Next: Graphics/ })
+    .click();
+  await panel(page)
     .getByRole('button', { name: /^Next: Wheels and brakes/ })
     .click();
   await expect(page).toHaveURL(/\/build\/wheels/);

@@ -5,6 +5,7 @@ import {
   SEATINGS,
   CALIPERS,
   FINISHES,
+  GRAPHICS,
   GRILLES,
   LAMP_TINTS,
   LIGHT_SIGNATURES,
@@ -64,6 +65,15 @@ export function lineItems(b: Build): LineGroup[] {
             LIVERIES[b.livery].n + (b.livery !== 'none' ? ` in ${lower(LIVERY_COLOURS[b.livCol].n)}` : ''),
           colour: b.livery !== 'none' ? LIVERY_COLOURS[b.livCol].c : null,
           usd: LIVERIES[b.livery].p,
+        },
+        {
+          label: 'Graphics',
+          detail:
+            b.doorArt === 'none' && b.rearArt === 'none'
+              ? 'None'
+              : `Doors: ${GRAPHICS[b.doorArt].n.toLowerCase()}${b.doorArt === 'number' ? ` ${b.raceNo}` : ''}; rear: ${GRAPHICS[b.rearArt].n.toLowerCase()}`,
+          colour: b.doorArt === 'none' && b.rearArt === 'none' ? null : LIVERY_COLOURS[b.artCol].c,
+          usd: GRAPHICS[b.doorArt].p + GRAPHICS[b.rearArt].p,
         },
         {
           label: 'Wheels',

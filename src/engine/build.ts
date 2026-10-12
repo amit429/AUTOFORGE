@@ -6,6 +6,7 @@ import {
   CALIPERS,
   DEFAULT_BUILD,
   FINISHES,
+  GRAPHICS,
   GRILLES,
   LAMP_TINTS,
   LIGHT_SIGNATURES,
@@ -58,6 +59,9 @@ const CATALOGUE: Partial<Record<OptionKey, Record<string, unknown>>> = {
   finish: FINISHES,
   livery: LIVERIES,
   livCol: LIVERY_COLOURS,
+  doorArt: GRAPHICS,
+  rearArt: GRAPHICS,
+  artCol: LIVERY_COLOURS,
   wheel: WHEELS,
   wfin: WHEEL_FINISHES,
   caliper: CALIPERS,
@@ -101,6 +105,10 @@ export function coerce<K extends OptionKey>(key: K, value: unknown): Build[K] | 
     }
     case 'vlt':
       return Number.isFinite(Number(value)) ? out(Math.round(clampRange('vlt', Number(value)))) : undefined;
+    case 'raceNo': {
+      const n = Math.round(Number(value));
+      return Number.isFinite(n) ? out(Math.min(99, Math.max(0, n))) : undefined;
+    }
     case 'livScale':
     case 'ambBri':
       return Number.isFinite(Number(value)) ? out(clampRange(key, Number(value))) : undefined;

@@ -8,11 +8,13 @@
  */
 import gsap from 'gsap';
 import * as THREE from 'three';
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 import {
   CALIPERS,
   FINISHES,
   LAMP_TINTS,
   LIVERIES,
+  type GraphicId,
   LIVERY_COLOURS,
   QUILTS,
   REGIONS,
@@ -27,6 +29,7 @@ import {
   type WheelId,
 } from '@/data/options';
 import { paintHex, stitchHex } from '@/engine/labels';
+import { graphicCanvas } from '@/lib/graphics';
 import { clamp, dur, prefersReducedMotion } from '@/lib/motion';
 import {
   chromaFor,
@@ -338,10 +341,9 @@ export class CarModel {
       for (const side of [1, -1] as const) {
         const grp = new THREE.Group();
         const curve = new THREE.CatmullRomCurve3(g.doorOutline(x0, x1, side), true, 'catmullrom', 0.02);
-        grp.add(
-          mesh(g.doorGeometry(x0, x1, side), this.bodyMat),
-          new THREE.Mesh(new THREE.TubeGeometry(curve, 160, 0.0032, 5, true), shut),
-        );
+        const skin = mesh(g.doorGeometry(x0, x1, side), this.bodyMat);
+        this.doorSkins.push({ side, mesh: skin, index: i });
+        grp.add(skin, new THREE.Mesh(new THREE.TubeGeometry(curve, 160, 0.0032, 5, true), shut));
         const name = (i === 0 ? 'door_' : 'door_r') + (side > 0 ? 'r' : 'l');
         this.addPart(name, grp, [i === 0 ? 0 : -0.08, 0, side * 0.6]);
       }
@@ -663,6 +665,110 @@ export class CarModel {
     x.font = `18px ${disp}`;
     x.fillText('HALDEN', 280, 200);
     this.screenTex.needsUpdate = true;
+  }
+
+  /** Door skins, used as projection targets for door graphics. */
+  private doorSkins: { side: 1 | -1; mesh: THREE.Mesh; index: number }[] = [];
+  private decals: THREE.Mesh[] = [];
+  /** User artwork for the 'upload' graphic (kept outside the build; see store/uploads). */
+  private art: { door: CanvasImageSource | null; rear: CanvasImageSource | null } = {
+    door: null,
+    rear: null,
+  };
+
+  /** Sets user artwork and redraws graphics that use it. */
+  setArtwork(art: { door: CanvasImageSource | null; rear: CanvasImageSource | null }) {
+    this.art = art;
+    if (this.build.doorArt === 'upload' || this.build.rearArt === 'upload') this.updGraphics(false);
+  }
+
+  /**
+   * Door and rear graphics as decals projected onto the panels. The door design spans every
+   * door on a side and is mirrored on the left so it always starts at the front of the car.
+   */
+  private updGraphics(animate: boolean) {
+    for (const d of this.decals) {
+      d.parent?.remove(d);
+      d.geometry.dispose();
+      const m = d.material as THREE.MeshPhysicalMaterial;
+      m.map?.dispose();
+      m.dispose();
+    }
+    this.decals = [];
+    const b = this.build;
+    const g = this.geo;
+    const s = g.spec;
+    const colour = LIVERY_COLOURS[b.artCol].c;
+    this.root.updateMatrixWorld(true);
+    const directional: GraphicId[] = ['flames', 'slash', 'sweep', 'tribal', 'checker'];
+    const decal = (
+      target: THREE.Mesh,
+      canvas: HTMLCanvasElement,
+      local: THREE.Vector3,
+      rotY: number,
+      size: THREE.Vector3,
+    ) => {
+      const world = local.clone().applyMatrix4(target.matrixWorld);
+      const geo = new DecalGeometry(target, world, new THREE.Euler(0, rotY, 0), size);
+      if (!geo.getAttribute('position')?.count) {
+        geo.dispose();
+        return;
+      }
+      geo.applyMatrix4(target.matrixWorld.clone().invert());
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 4;
+      const mat = new THREE.MeshPhysicalMaterial({
+        map: tex,
+        transparent: true,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -4,
+        roughness: 0.32,
+        metalness: 0.1,
+        clearcoat: 1,
+        opacity: animate ? 0 : 1,
+      });
+      const decalMesh = new THREE.Mesh(geo, mat);
+      decalMesh.renderOrder = 3;
+      target.add(decalMesh);
+      this.decals.push(decalMesh);
+      if (animate) gsap.to(mat, { opacity: 1, duration: dur(0.7), ease: 'power2.out' });
+    };
+    const opts = (place: 'door' | 'rear') => ({ colour, number: b.raceNo, place, image: this.art[place] });
+
+    if (b.doorArt !== 'none' && (b.doorArt !== 'upload' || this.art.door)) {
+      // Badges (number, script, own image) sit on the front door; flowing designs span every door.
+      const badge = !directional.includes(b.doorArt);
+      const x0 = s.doors[0]![0] - 0.04;
+      const x1 = (badge ? s.doors[0]![1] : s.doors[s.doors.length - 1]![1]) + 0.04;
+      const cx = (x0 + x1) / 2;
+      const ylo = g.bottomY(cx) + 0.1;
+      const yhi = g.belt(cx) - 0.06;
+      const cy = (ylo + yhi) / 2;
+      const len = x0 - x1;
+      const h = yhi - ylo;
+      const W = 1024;
+      const H = Math.max(128, Math.round((W * h) / len));
+      for (const { side, mesh: skin, index } of this.doorSkins) {
+        if (badge && index > 0) continue;
+        const mirror = side < 0 && directional.includes(b.doorArt);
+        const canvas = graphicCanvas(b.doorArt, W, H, opts('door'), mirror);
+        const at = new THREE.Vector3(cx, cy, side * g.sideZ(cx, cy));
+        decal(skin, canvas, at, side > 0 ? 0 : Math.PI, new THREE.Vector3(len, h, 0.6));
+      }
+    }
+    if (b.rearArt !== 'none' && (b.rearArt !== 'upload' || this.art.rear)) {
+      const body = this.P.body!.o as THREE.Mesh;
+      const ylo = s.tailY + 0.07;
+      const yhi = Math.min(g.topY(s.rear + 0.15) - 0.04, ylo + 0.34);
+      const cy = (ylo + yhi) / 2;
+      const xr = g.endX(cy, 0, -1);
+      const w = g.sideZ(xr + 0.12, cy) * 1.4;
+      const h = Math.max(0.12, yhi - ylo);
+      const canvas = graphicCanvas(b.rearArt, 768, Math.max(96, Math.round((768 * h) / w)), opts('rear'));
+      decal(body, canvas, new THREE.Vector3(xr, cy, 0), -Math.PI / 2, new THREE.Vector3(w, h, 0.28));
+    }
   }
 
   /** Seat parts currently in the cabin, rebuilt when the seating layout changes. */
@@ -1021,6 +1127,7 @@ export class CarModel {
     this.updTrim(false);
     this.P.steering!.base.z = REGIONS[b.region].drive === 'RHD' ? this.steerZ : -this.steerZ;
     this.updPacks([], false);
+    this.updGraphics(false);
   }
 
   private updPaint(animate: boolean) {
@@ -1364,6 +1471,12 @@ export class CarModel {
         case 'seating':
           run.add('seating');
           break;
+        case 'doorArt':
+        case 'rearArt':
+        case 'artCol':
+        case 'raceNo':
+          run.add('graphics');
+          break;
         case 'ambMode':
         case 'ambBri':
           break;
@@ -1417,6 +1530,9 @@ export class CarModel {
           break;
         case 'seating':
           this.rebuildSeats(animate);
+          break;
+        case 'graphics':
+          this.updGraphics(animate);
           break;
         case 'region':
           this.updDrive(animate);

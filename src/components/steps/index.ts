@@ -3,6 +3,7 @@ import type { StepId } from '@/data/options';
 import { AmbientStep } from './AmbientStep';
 import { BodyStep } from './BodyStep';
 import { GlassStep } from './GlassStep';
+import { GraphicsStep } from './GraphicsStep';
 import { LightsStep } from './LightsStep';
 import { LiveryStep } from './LiveryStep';
 import { PaintStep } from './PaintStep';
@@ -16,6 +17,7 @@ export const STEP_PANELS: Record<StepId, ComponentType> = {
   shape: ShapeStep,
   paint: PaintStep,
   livery: LiveryStep,
+  graphics: GraphicsStep,
   wheels: WheelsStep,
   body: BodyStep,
   lights: LightsStep,

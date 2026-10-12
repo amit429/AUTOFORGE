@@ -168,6 +168,17 @@ describe('pricing', () => {
     ).toBe(4800 - 1900);
     expect(normalize({ body: 'supercar', seating: 'seven' }).seating).toBe('two');
   });
+  it('prices door and rear graphics separately and clamps race numbers', () => {
+    expect(optionsUSD(build({ doorArt: 'flames', rearArt: 'script' })) - optionsUSD(build())).toBe(
+      2400 + 1100,
+    );
+    expect(setOption(build(), 'raceNo', 140).ok && normalize({ raceNo: 140 }).raceNo).toBe(99);
+    expect(normalize({ raceNo: -3 }).raceNo).toBe(0);
+    const g = lineItems(build({ doorArt: 'number', raceNo: 27 }))[0]!.items.find(
+      (i) => i.label === 'Graphics',
+    );
+    expect(g?.detail).toBe('Doors: race number 27; rear: none');
+  });
   it('rejects an unknown body style', () => {
     expect(setOption(build(), 'body', 'tank' as Build['body']).ok).toBe(false);
     expect(normalize({ body: 'tank' }).body).toBe('coupe');

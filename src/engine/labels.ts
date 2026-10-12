@@ -6,6 +6,7 @@ import {
   CALIPERS,
   CUSTOM_PAINT_USD,
   FINISHES,
+  GRAPHICS,
   GRILLES,
   LAMP_TINTS,
   LIGHT_SIGNATURES,
@@ -38,6 +39,10 @@ export const KEY_NAMES: Record<OptionKey, string> = {
   livery: 'Livery',
   livCol: 'Livery colour',
   livScale: 'Livery scale',
+  doorArt: 'Door graphics',
+  rearArt: 'Rear graphics',
+  artCol: 'Graphic colour',
+  raceNo: 'Race number',
   wheel: 'Wheels',
   size: 'Wheel size',
   wfin: 'Wheel finish',
@@ -82,6 +87,14 @@ export function optionLabel(key: OptionKey, b: Build): OptionLabel {
       return { name: LIVERY_COLOURS[b.livCol].n, usd: null };
     case 'livScale':
       return { name: `${Math.round(b.livScale * 100)}%`, usd: null };
+    case 'doorArt':
+      return { name: GRAPHICS[b.doorArt].n, usd: GRAPHICS[b.doorArt].p };
+    case 'rearArt':
+      return { name: GRAPHICS[b.rearArt].n, usd: GRAPHICS[b.rearArt].p };
+    case 'artCol':
+      return { name: LIVERY_COLOURS[b.artCol].n, usd: null };
+    case 'raceNo':
+      return { name: String(b.raceNo), usd: null };
     case 'wheel':
       return { name: WHEELS[b.wheel].n, usd: WHEELS[b.wheel].p };
     case 'size':
@@ -161,6 +174,10 @@ export function chipColour(key: OptionKey | '*', b: Build): string | null {
     case 'livery':
     case 'livCol':
       return LIVERY_COLOURS[b.livCol].c;
+    case 'doorArt':
+    case 'rearArt':
+    case 'artCol':
+      return LIVERY_COLOURS[b.artCol].c;
     case 'wheel':
     case 'wfin':
       return WHEEL_FINISHES[b.wfin].c;

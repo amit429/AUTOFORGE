@@ -9,6 +9,7 @@ import { decodeBuild } from '@/engine';
 import { hrefFor } from '@/lib/navigation';
 import { loadSaved, startAutosave, useBuild } from '@/store/build';
 import { screenForPath, useUi } from '@/store/ui';
+import { loadUploads } from '@/store/uploads';
 import { Cursor } from './Cursor';
 import { Curtain } from './Curtain';
 import { Loader } from './Loader';
@@ -30,6 +31,7 @@ function useHydrateBuild() {
         step: stepFromPath >= 0 ? stepFromPath : saved.step,
       });
     else hydrate(build, { regionChosen: false, step: Math.max(0, stepFromPath) });
+    loadUploads();
     return startAutosave();
   }, []);
 }

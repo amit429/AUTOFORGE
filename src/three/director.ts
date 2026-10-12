@@ -11,6 +11,7 @@ import { dur, isMobile, prefersReducedMotion } from '@/lib/motion';
 import { effectiveTheme } from '@/lib/theme';
 import { isCabinStep, useBuild, type View } from '@/store/build';
 import { useUi, type Screen } from '@/store/ui';
+import { imageFor, useUploads } from '@/store/uploads';
 import { hotspotsFor, partLabelsFor, type Hotspot, type PartLabel } from './anchors';
 import { CameraRig, POSES, fitPose, type FrameName } from './camera';
 import { CarModel } from './car/CarModel';
@@ -136,6 +137,10 @@ export class StageDirector {
       if (s.introStarted && !p.introStarted)
         gsap.to(this.story, { intro: 1, duration: dur(2.6), ease: 'power3.out' });
     });
+    const unArt = useUploads.subscribe((s, p) => {
+      if (s.rev !== p.rev) void this.loadArtwork(this.car);
+    });
+    this.cleanups.push(unArt);
     const unBuild = useBuild.subscribe((s, p) => {
       if (s.change.seq !== p.change.seq && s.change.keys.length) {
         const animate = s.change.animate && !prefersReducedMotion();
@@ -169,7 +174,17 @@ export class StageDirector {
   /* ------------------------------------------------------------- the car */
 
   private makeCar(build: Build) {
-    return new CarModel(build, (lightsOn) => useUi.setState({ lightsOn }));
+    const car = new CarModel(build, (lightsOn) => useUi.setState({ lightsOn }));
+    void this.loadArtwork(car);
+    return car;
+  }
+
+  /** Decodes the user's uploaded artwork and hands it to a car. */
+  private async loadArtwork(car: CarModel) {
+    const { door, rear } = useUploads.getState();
+    const decode = (url: string | null) => (url ? imageFor(url).catch(() => null) : Promise.resolve(null));
+    const [d, r] = await Promise.all([decode(door), decode(rear)]);
+    car.setArtwork({ door: d, rear: r });
   }
 
   private fitAnchors() {

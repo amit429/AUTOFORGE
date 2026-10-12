@@ -9,6 +9,7 @@ export type PaintId = keyof typeof raw.paints;
 export type FinishId = keyof typeof raw.finishes;
 export type LiveryId = keyof typeof raw.liveries;
 export type LiveryColourId = keyof typeof raw.liveryColors;
+export type GraphicId = keyof typeof raw.graphics;
 export type WheelId = keyof typeof raw.wheels;
 export type WheelSize = 19 | 20 | 21 | 22;
 export type WheelFinishId = keyof typeof raw.wheelFinishes;
@@ -30,6 +31,7 @@ export type StepId =
   | 'shape'
   | 'paint'
   | 'livery'
+  | 'graphics'
   | 'wheels'
   | 'body'
   | 'lights'
@@ -52,6 +54,10 @@ export interface Build {
   livery: LiveryId;
   livCol: LiveryColourId;
   livScale: number;
+  doorArt: GraphicId;
+  rearArt: GraphicId;
+  artCol: LiveryColourId;
+  raceNo: number;
   wheel: WheelId;
   size: WheelSize;
   wfin: WheelFinishId;
@@ -179,6 +185,8 @@ export const PAINTS = raw.paints as Record<PaintId, Paint>;
 export const FINISHES = raw.finishes as Record<FinishId, Finish>;
 export const LIVERIES = raw.liveries as Record<LiveryId, Livery>;
 export const LIVERY_COLOURS = raw.liveryColors as Record<LiveryColourId, Swatch>;
+/** Door and rear graphics; the same designs are offered for both positions. */
+export const GRAPHICS = raw.graphics as Record<GraphicId, Priced>;
 export const WHEELS = raw.wheels as Record<WheelId, Priced>;
 export const WHEEL_SIZES = [19, 20, 21, 22] as const satisfies readonly WheelSize[];
 export const WHEEL_SIZE_USD = raw.wheelSizesUSD as Record<`${WheelSize}`, number>;
