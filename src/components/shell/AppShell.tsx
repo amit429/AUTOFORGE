@@ -11,6 +11,7 @@ import { loadSaved, startAutosave, useBuild } from '@/store/build';
 import { screenForPath, useUi } from '@/store/ui';
 import { Cursor } from './Cursor';
 import { Curtain } from './Curtain';
+import { Loader } from './Loader';
 import { Toasts } from './Toasts';
 
 /** Restores the build from `?b=` or localStorage once, then autosaves. */
@@ -70,6 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Toasts />
       <Curtain />
       <Cursor />
+      <Loader />
     </>
   );
 }

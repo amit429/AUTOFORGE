@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Instrument_Sans, Michroma } from 'next/font/google';
+import Script from 'next/script';
 import { AppShell } from '@/components/shell/AppShell';
 import { themeBootScript } from '@/lib/theme';
 import '@/styles/globals.css';
@@ -36,10 +37,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${michroma.variable} ${instrument.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
-      </head>
       <body>
+        <Script id="theme-boot" strategy="beforeInteractive">
+          {themeBootScript}
+        </Script>
         <AppShell>{children}</AppShell>
       </body>
     </html>
