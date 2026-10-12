@@ -30,3 +30,9 @@
   display: inline-block;
   white-space: pre;
 }
+/* Michroma draws € as a bare O that reads as a zero; currency symbols use the body face. */
+.cur {
+  font-family: var(--font-b);
+  font-weight: 500;
+  margin: 0 0.06em;
+}

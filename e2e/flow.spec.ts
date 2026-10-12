@@ -10,7 +10,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('region, build, locked option, undo, region change', async ({ page, isMobile }) => {
-  await page.getByRole('button', { name: /India, prices in INR/ }).click();
+  await page.getByRole('radio', { name: /India/ }).click();
+  await page.getByRole('button', { name: 'Enter the atelier' }).click();
   await expect(page).toHaveURL(/\/build\/paint\?b=/);
   await expect(price(page)).toContainText('₹1,20,44,000');
 
@@ -46,13 +47,15 @@ test('region, build, locked option, undo, region change', async ({ page, isMobil
 });
 
 test('region change mid-build swaps exclusives with a reason', async ({ page }) => {
-  await page.getByRole('button', { name: /India, prices in INR/ }).click();
+  await page.getByRole('radio', { name: /India/ }).click();
+  await page.getByRole('button', { name: 'Enter the atelier' }).click();
   await panel(page)
     .getByRole('radio', { name: /^Saffron Dusk/ })
     .click();
   await page.getByRole('button', { name: /Region: India/ }).click();
   await expect(page).toHaveURL(/\/region/);
-  await page.getByRole('button', { name: /Europe, prices in EUR/ }).click();
+  await page.getByRole('radio', { name: /Europe/ }).click();
+  await page.getByRole('button', { name: 'Enter the atelier' }).click();
   await expect(page).toHaveURL(/\/build\//);
   await expect(page.getByText('Saffron Dusk replaced with Vesper Black.')).toBeVisible({ timeout: 6000 });
   await expect(price(page)).toContainText('€');

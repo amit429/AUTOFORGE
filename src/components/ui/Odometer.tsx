@@ -40,7 +40,10 @@ export function Odometer({ value, className }: { value: string; className?: stri
             </span>
           </span>
         ) : (
-          <span key={`${chars.length}-${i}`} className={styles.sy}>
+          <span
+            key={`${chars.length}-${i}`}
+            className={`${styles.sy} ${/[.,\s\u00a0\u202f'’]/.test(ch) ? '' : styles.cur}`}
+          >
             {ch}
           </span>
         ),

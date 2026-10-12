@@ -1,0 +1,129 @@
+.region {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 4vw;
+  padding: 110px 6vw 60px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+}
+.left h2 {
+  font-family: var(--font-d);
+  font-size: clamp(28px, 3.4vw, 50px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+.left p {
+  margin-top: 18px;
+  color: var(--ink-2);
+  max-width: 470px;
+  line-height: 1.65;
+}
+.globeWrap {
+  margin-top: 30px;
+  position: relative;
+  width: min(440px, 80vw);
+  aspect-ratio: 1;
+}
+.globe {
+  width: 100%;
+  height: 100%;
+}
+.globeCap {
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.rg {
+  position: relative;
+  text-align: left;
+  padding: 20px 20px 18px;
+  border-radius: var(--r-l);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  overflow: hidden;
+  transition:
+    border-color 0.35s,
+    translate 0.5s var(--e-out);
+}
+.rg:hover {
+  border-color: var(--line-2);
+  translate: 0 -3px;
+}
+.rg.on {
+  border-color: var(--clay);
+}
+.nm {
+  font-family: var(--font-d);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.meta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.ex {
+  margin-top: 16px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.ex i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  flex: none;
+}
+.ex span {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-left: 6px;
+}
+.sug {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--clay-soft);
+  color: var(--clay);
+}
+.go {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.go small {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .region {
+    grid-template-columns: 1fr;
+    overflow: auto;
+    padding: 90px 18px 40px;
+    align-items: start;
+  }
+  .globeWrap {
+    display: none;
+  }
+  .list {
+    grid-template-columns: 1fr;
+  }
+}
