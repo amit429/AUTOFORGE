@@ -48,10 +48,18 @@ function waitForScreen(target: Screen, timeout = 4000) {
   });
 }
 
-/** Navigates to a screen with the page transition. `push` is the router's push. */
-export async function navigate(to: Screen, push: (href: string) => void) {
+let queued: { to: Screen; push: (href: string) => void } | null = null;
+
+/**
+ * Navigates to a screen with the page transition. `push` is the router's push. A request made
+ * mid-transition is queued (latest wins) and runs as soon as the current one finishes.
+ */
+export async function navigate(to: Screen, push: (href: string) => void): Promise<void> {
   const ui = useUi.getState();
-  if (ui.transitioning) return;
+  if (ui.transitioning) {
+    queued = { to, push };
+    return;
+  }
   let target = to;
   if (target === 'config' && !useBuild.getState().regionChosen) target = 'region';
   const from = ui.screen;
@@ -75,4 +83,7 @@ export async function navigate(to: Screen, push: (href: string) => void) {
   } finally {
     useUi.setState({ transitioning: false });
   }
+  const next = queued;
+  queued = null;
+  if (next) await navigate(next.to, next.push);
 }
