@@ -3,7 +3,11 @@ import {
   AMBIENT_MODES,
   AMBIENT_PRESETS,
   BODY_TYPES,
+  COMFORTS,
+  DASH_TONES,
   EXHAUSTS,
+  HEADLINERS,
+  STEERINGS,
   MODS,
   SEATINGS,
   CALIPERS,
@@ -66,6 +70,11 @@ export const KEY_NAMES: Record<OptionKey, string> = {
   quilt: 'Quilting',
   stitch: 'Stitching',
   trim: 'Trim',
+  steer: 'Steering wheel',
+  dashTone: 'Dashboard',
+  carpet: 'Floor mats',
+  headliner: 'Headliner',
+  comfort: 'Comfort',
   amb: 'Ambient',
   ambMode: 'Ambient mode',
   ambBri: 'Brightness',
@@ -142,6 +151,19 @@ export function optionLabel(key: OptionKey, b: Build): OptionLabel {
       return { name: STITCHES[b.stitch].n, usd: null };
     case 'trim':
       return { name: TRIMS[b.trim].n, usd: TRIMS[b.trim].p };
+    case 'steer':
+      return { name: STEERINGS[b.steer].n, usd: STEERINGS[b.steer].p };
+    case 'dashTone':
+      return { name: DASH_TONES[b.dashTone].n, usd: null };
+    case 'carpet':
+      return { name: SEAT_COLOURS[b.carpet].n, usd: null };
+    case 'headliner':
+      return { name: HEADLINERS[b.headliner].n, usd: HEADLINERS[b.headliner].p };
+    case 'comfort':
+      return {
+        name: b.comfort.length ? b.comfort.map((c) => COMFORTS[c].n).join(', ') : 'Standard',
+        usd: null,
+      };
     case 'amb':
       return { name: b.amb.toUpperCase(), usd: null };
     case 'ambMode':
@@ -207,6 +229,10 @@ export function chipColour(key: OptionKey | '*', b: Build): string | null {
       return stitchHex(b);
     case 'trim':
       return TRIMS[b.trim].a;
+    case 'carpet':
+      return SEAT_COLOURS[b.carpet].c;
+    case 'headliner':
+      return HEADLINERS[b.headliner].c;
     case 'amb':
       return b.amb;
     case 'glow':

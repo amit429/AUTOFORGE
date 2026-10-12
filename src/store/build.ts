@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import {
   BODY_TYPES,
+  COMFORTS,
   MODS,
   CABIN_STEPS,
   DEFAULT_BUILD,
@@ -10,6 +11,7 @@ import {
   STEPS,
   type Build,
   type OptionKey,
+  type ComfortId,
   type ModId,
   type PackId,
   type RegionId,
@@ -64,6 +66,7 @@ interface BuildState {
   commitLive: <K extends OptionKey>(key: K, start: Build[K]) => void;
   togglePack: (pack: PackId) => void;
   toggleMod: (mod: ModId) => void;
+  toggleComfort: (c: ComfortId) => void;
   snapshot: (target: Patch, label: string | null) => void;
   undo: () => void;
   chooseRegion: (region: RegionId) => void;
@@ -109,6 +112,12 @@ export const useBuild = create<BuildState>((set, get) => ({
     }));
     if (key === 'body' && r.next.seating)
       toast(`Seating changed to ${SEATINGS[r.next.seating].n} to fit the ${BODY_TYPES[r.build.body].n}.`);
+    if (r.next.comfort && r.prev.comfort && key !== 'comfort') {
+      const gone = r.prev.comfort
+        .filter((c) => !r.next.comfort!.includes(c))
+        .map((c) => COMFORTS[c].n.toLowerCase());
+      if (gone.length) toast(`Removed ${gone.join(', ')}: needs a different seating layout.`, 'warn');
+    }
     if (key === 'body' && r.next.mods && r.prev.mods) {
       const gone = r.prev.mods.filter((m) => !r.next.mods!.includes(m)).map((m) => MODS[m].n.toLowerCase());
       if (gone.length)
@@ -145,6 +154,13 @@ export const useBuild = create<BuildState>((set, get) => ({
     const other: ModId | null = mod === 'lift' ? 'lowered' : mod === 'lowered' ? 'lift' : null;
     const next = on ? build.mods.filter((m) => m !== mod) : [...build.mods.filter((m) => m !== other), mod];
     if (get().set('mods', next)) toast(`${MODS[mod].n} ${on ? 'removed' : 'fitted'}.`);
+  },
+
+  toggleComfort: (c) => {
+    const { build } = get();
+    const on = build.comfort.includes(c);
+    const next = on ? build.comfort.filter((x) => x !== c) : [...build.comfort, c];
+    if (get().set('comfort', next)) toast(`${COMFORTS[c].n} ${on ? 'removed' : 'added'}.`);
   },
 
   snapshot: (target, label) => {

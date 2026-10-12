@@ -1,5 +1,6 @@
 import {
   BODY_TYPES,
+  COMFORTS,
   LAMP_TINTS,
   LIVERIES,
   MODS,
@@ -9,6 +10,7 @@ import {
   SEAT_MATERIALS,
   TRIMS,
   type BodyTypeId,
+  type SeatingId,
   type Build,
   type OptionKey,
   type RegionId,
@@ -37,12 +39,18 @@ function exclusive(option: (Regional & { n: string }) | undefined, region: Regio
  * Whether `value` can be ordered for `key` in `region` on the given body. This is the only place
  * availability is decided; the UI renders its answer and never re-derives it.
  */
+export interface BuildContext {
+  body?: BodyTypeId;
+  seating?: SeatingId;
+}
+
 export function availability<K extends OptionKey>(
   key: K,
   value: Build[K],
   region: RegionId,
-  body?: BodyTypeId,
+  ctx: BuildContext = {},
 ): Availability {
+  const { body, seating } = ctx;
   const R = REGIONS[region];
   switch (key) {
     case 'paint':
@@ -90,6 +98,22 @@ export function availability<K extends OptionKey>(
           }
         : OK;
     }
+    case 'comfort': {
+      const list = value as Build['comfort'];
+      if (list.some((c) => !COMFORTS[c]))
+        return { ok: false, reason: 'That feature is not in the catalogue.' };
+      const blocked = seating
+        ? list.find((c) => COMFORTS[c].needs && !COMFORTS[c].needs!.includes(seating))
+        : undefined;
+      if (!blocked) return OK;
+      return {
+        ok: false,
+        reason:
+          blocked === 'recline'
+            ? "Reclining rear chairs need captain's chairs: pick the four-seat lounge or six captain's chairs."
+            : 'Rear entertainment needs rear seats.',
+      };
+    }
     case 'packs': {
       const bad = (value as Build['packs']).find((p) => !R.packs.includes(p));
       return bad ? { ok: false, reason: `That pack is only offered in its own market, not in ${R.n}.` } : OK;
@@ -103,5 +127,5 @@ export const isAvailable = <K extends OptionKey>(
   key: K,
   value: Build[K],
   region: RegionId,
-  body?: BodyTypeId,
-) => availability(key, value, region, body).ok;
+  ctx?: BuildContext,
+) => availability(key, value, region, ctx).ok;

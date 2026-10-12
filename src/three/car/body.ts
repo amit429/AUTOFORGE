@@ -313,9 +313,9 @@ export class BodyGeometry {
   }
 
   /** Roof skin over the top of the glasshouse (a fabric hood that wraps lower on a soft top). */
-  roofGeometry() {
+  roofGeometry(grow = 0.012) {
     const { x0, x1, u0 } = this.roofSpan();
-    return this.grid(50, 24, x0, x1, (x, u) => this.glassPoint(x, u0 + u * (1 - 2 * u0), 0.012), false);
+    return this.grid(50, 24, x0, x1, (x, u) => this.glassPoint(x, u0 + u * (1 - 2 * u0), grow), false);
   }
 
   /** Section parameter range covering a door on one side (from the sill up to the shoulder). */

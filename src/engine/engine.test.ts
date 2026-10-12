@@ -147,12 +147,14 @@ describe('pricing', () => {
     expect(base).toMatchObject({ detail: 'Halden SUV', usd: 88900 });
   });
   it('fits the seating layout to the body and explains why a layout is locked', () => {
-    expect(availability('seating', 'seven', 'in', 'coupe')).toEqual({
+    expect(availability('seating', 'seven', 'in', { body: 'coupe' })).toEqual({
       ok: false,
       reason: 'The Coupe does not take seven seats.',
     });
-    expect(availability('seating', 'twoPlusTwo', 'in', 'sedan').reason).toBe('The Sedan does not take 2+2.');
-    expect(availability('seating', 'seven', 'in', 'mpv').ok).toBe(true);
+    expect(availability('seating', 'twoPlusTwo', 'in', { body: 'sedan' }).reason).toBe(
+      'The Sedan does not take 2+2.',
+    );
+    expect(availability('seating', 'seven', 'in', { body: 'mpv' }).ok).toBe(true);
     const r = setOption(build(), 'body', 'mpv');
     if (!r.ok || !r.changed) throw new Error('expected change');
     expect(r.build.seating).toBe('seven');
@@ -180,7 +182,7 @@ describe('pricing', () => {
     expect(g?.detail).toBe('Doors: race number 27; rear: none');
   });
   it('only fits mods to bodies that take them and drops misfits on a body change', () => {
-    expect(availability('mods', ['snorkel'], 'in', 'sedan')).toEqual({
+    expect(availability('mods', ['snorkel'], 'in', { body: 'sedan' })).toEqual({
       ok: false,
       reason: 'The snorkel does not fit the Sedan.',
     });
@@ -196,6 +198,28 @@ describe('pricing', () => {
       optionsUSD(build({ body: 'pickup', exhaust: 'quad', mods: ['tonneau'], glow: 'ice' })) - base,
     ).toBe(1200 + 1400 + 1100);
     expect(normalize({ glow: 'neon' }).glow).toBe('none');
+  });
+  it('ties comfort features to the seating layout', () => {
+    const mpv = build({ body: 'mpv', seating: 'lounge' });
+    expect(setOption(mpv, 'comfort', ['recline']).ok).toBe(true);
+    expect(availability('comfort', ['recline'], 'in', { seating: 'seven' }).reason).toBe(
+      "Reclining rear chairs need captain's chairs: pick the four-seat lounge or six captain's chairs.",
+    );
+    expect(availability('comfort', ['screens'], 'in', { seating: 'two' }).reason).toBe(
+      'Rear entertainment needs rear seats.',
+    );
+    const r = setOption({ ...mpv, comfort: ['recline', 'heated'] }, 'seating', 'seven');
+    if (!r.ok || !r.changed) throw new Error('expected change');
+    expect(r.build.comfort).toEqual(['heated']);
+    expect(undoEntry(r.build, singleEntry('seating', r.prev, r.next, r.build)).comfort).toEqual([
+      'recline',
+      'heated',
+    ]);
+  });
+  it('prices cabin details', () => {
+    const extra = build({ steer: 'yoke', headliner: 'starlight', comfort: ['massage', 'heated'] });
+    expect(optionsUSD(extra) - optionsUSD(build())).toBe(1200 + 3800 + 1600 + 500);
+    expect(normalize({ comfort: ['jacuzzi'] }).comfort).toEqual([]);
   });
   it('rejects an unknown body style', () => {
     expect(setOption(build(), 'body', 'tank' as Build['body']).ok).toBe(false);

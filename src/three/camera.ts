@@ -29,6 +29,7 @@ export const POSES: Record<StepId | 'exploded' | 'cabin' | 'summary' | 'regionSc
   glass: { theta: 0.3, phi: 1.24, r: 7.2, tx: -0.4, ty: 0.9, tz: 0 },
   seats: { theta: 0.55, phi: 0.62, r: 5.4, tx: -0.45, ty: 0.85, tz: 0 },
   trim: { theta: -1.3, phi: 0.74, r: 3.7, tx: 0.15, ty: 0.95, tz: 0 },
+  details: { theta: 0.3, phi: 0.72, r: 5.6, tx: -0.2, ty: 0.9, tz: 0 },
   ambient: { theta: 0.95, phi: 0.7, r: 5, tx: -0.3, ty: 0.85, tz: 0 },
   region: { theta: -0.7, phi: 1.3, r: 8.8, tx: 0, ty: 0.6, tz: 0 },
   exploded: { theta: 0.72, phi: 1.06, r: 13.6, tx: 0, ty: 0.85, tz: 0 },

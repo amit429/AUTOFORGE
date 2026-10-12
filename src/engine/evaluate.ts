@@ -2,7 +2,11 @@ import {
   ACCENTS,
   AMBIENT_PRESETS,
   BODY_TYPES,
+  COMFORTS,
+  DASH_TONES,
   EXHAUSTS,
+  HEADLINERS,
+  STEERINGS,
   MODS,
   SEATINGS,
   AMBIENT_MODES,
@@ -61,6 +65,10 @@ export const OPTION_VALUES: Partial<Record<OptionKey, string[]>> = {
   quilt: Object.keys(QUILTS),
   stitch: Object.keys(STITCHES),
   trim: Object.keys(TRIMS),
+  steer: Object.keys(STEERINGS),
+  dashTone: Object.keys(DASH_TONES),
+  carpet: Object.keys(SEAT_COLOURS),
+  headliner: Object.keys(HEADLINERS),
   ambMode: Object.keys(AMBIENT_MODES),
 };
 
@@ -81,12 +89,18 @@ export function evaluate(b: Build): Evaluation {
     const row: Record<string, Availability> = {};
     for (const v of values) {
       const value = key === 'size' ? Number(v) : v;
-      row[v] = availability(key, value as Build[typeof key], b.region, b.body);
+      row[v] = availability(key, value as Build[typeof key], b.region, { body: b.body, seating: b.seating });
     }
     available[key] = row;
   }
   available.mods = Object.fromEntries(
-    Object.keys(MODS).map((m) => [m, availability('mods', [m] as Build['mods'], b.region, b.body)]),
+    Object.keys(MODS).map((m) => [m, availability('mods', [m] as Build['mods'], b.region, { body: b.body })]),
+  );
+  available.comfort = Object.fromEntries(
+    Object.keys(COMFORTS).map((c) => [
+      c,
+      availability('comfort', [c] as Build['comfort'], b.region, { seating: b.seating }),
+    ]),
   );
   available.packs = Object.fromEntries(
     Object.keys(PACKS).map((p) => [p, availability('packs', [p] as Build['packs'], b.region)]),

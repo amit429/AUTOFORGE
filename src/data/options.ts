@@ -28,6 +28,10 @@ export type SeatColourId = keyof typeof raw.seatColours;
 export type QuiltId = keyof typeof raw.quilting;
 export type StitchId = keyof typeof raw.stitching;
 export type TrimId = keyof typeof raw.trims;
+export type SteeringId = keyof typeof raw.steerings;
+export type DashToneId = keyof typeof raw.dashTones;
+export type HeadlinerId = keyof typeof raw.headliners;
+export type ComfortId = keyof typeof raw.comforts;
 export type AmbientModeId = keyof typeof raw.ambientModes;
 export type PackId = keyof typeof raw.packs;
 export type StepId =
@@ -42,6 +46,7 @@ export type StepId =
   | 'glass'
   | 'seats'
   | 'trim'
+  | 'details'
   | 'ambient'
   | 'region';
 
@@ -81,6 +86,11 @@ export interface Build {
   quilt: QuiltId;
   stitch: StitchId;
   trim: TrimId;
+  steer: SteeringId;
+  dashTone: DashToneId;
+  carpet: SeatColourId;
+  headliner: HeadlinerId;
+  comfort: ComfortId[];
   amb: string;
   ambMode: AmbientModeId;
   ambBri: number;
@@ -220,6 +230,15 @@ export const SEAT_COLOURS = raw.seatColours as Record<SeatColourId, Swatch>;
 export const QUILTS = raw.quilting as Record<QuiltId, Quilt>;
 export const STITCHES = raw.stitching as Record<StitchId, Stitch>;
 export const TRIMS = raw.trims as Record<TrimId, Trim>;
+export const STEERINGS = raw.steerings as Record<SteeringId, Priced>;
+export const DASH_TONES = raw.dashTones as Record<DashToneId, Priced & { c?: string }>;
+export const HEADLINERS = raw.headliners as Record<HeadlinerId, Priced & { c: string }>;
+export interface Comfort extends Priced {
+  d: string;
+  /** Seating layouts the feature needs, if any. */
+  needs?: SeatingId[];
+}
+export const COMFORTS = raw.comforts as Record<ComfortId, Comfort>;
 export const AMBIENT_PRESETS = raw.ambientPresets as Record<keyof typeof raw.ambientPresets, Swatch>;
 export const AMBIENT_MODES = raw.ambientModes as Record<AmbientModeId, Priced>;
 export const PACKS = raw.packs as Record<PackId, Pack>;

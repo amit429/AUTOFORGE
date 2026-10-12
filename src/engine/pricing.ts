@@ -2,7 +2,10 @@ import {
   ACCENTS,
   AMBIENT_MODES,
   BODY_TYPES,
+  COMFORTS,
   EXHAUSTS,
+  HEADLINERS,
+  STEERINGS,
   MODS,
   UNDERGLOW_USD,
   SEATINGS,
@@ -57,9 +60,12 @@ export function optionsUSD(b: Build): number {
     SEAT_MATERIALS[b.seatMat].p +
     QUILTS[b.quilt].p +
     TRIMS[b.trim].p +
+    STEERINGS[b.steer].p +
+    HEADLINERS[b.headliner].p +
     AMBIENT_MODES[b.ambMode].p;
   for (const k of b.packs) p += PACKS[k].p;
   for (const m of b.mods) p += MODS[m].p;
+  for (const c of b.comfort) p += COMFORTS[c].p;
   return p;
 }
 

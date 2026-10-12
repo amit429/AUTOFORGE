@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
 import type { StepId } from '@/data/options';
 import { AmbientStep } from './AmbientStep';
 import { BodyStep } from './BodyStep';
+import { DetailsStep } from './DetailsStep';
 import { GlassStep } from './GlassStep';
 import { GraphicsStep } from './GraphicsStep';
 import { LightsStep } from './LightsStep';
@@ -26,6 +27,7 @@ export const STEP_PANELS: Record<StepId, ComponentType> = {
   glass: GlassStep,
   seats: SeatsStep,
   trim: TrimStep,
+  details: DetailsStep,
   ambient: AmbientStep,
   region: RegionStep,
 };

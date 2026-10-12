@@ -936,6 +936,91 @@
       "chroma": "#b7d6e8"
     }
   },
+  "steerings": {
+    "round": {
+      "n": "Round",
+      "p": 0
+    },
+    "flat": {
+      "n": "Flat-bottomed",
+      "p": 400
+    },
+    "yoke": {
+      "n": "Yoke",
+      "p": 1200
+    }
+  },
+  "dashTones": {
+    "match": {
+      "n": "Matched to seats",
+      "p": 0
+    },
+    "dark": {
+      "n": "Dark",
+      "c": "#1b1c1f",
+      "p": 0
+    },
+    "contrast": {
+      "n": "Contrast bone",
+      "c": "#d6ccbc",
+      "p": 0
+    }
+  },
+  "headliners": {
+    "standard": {
+      "n": "Standard",
+      "c": "#c9c6bf",
+      "p": 0
+    },
+    "alcantara": {
+      "n": "Alcantara",
+      "c": "#3a3c40",
+      "p": 1400
+    },
+    "starlight": {
+      "n": "Starlight",
+      "c": "#0f1426",
+      "p": 3800
+    }
+  },
+  "comforts": {
+    "heated": {
+      "n": "Heated seats",
+      "d": "Front and rear seats warm up in under a minute.",
+      "p": 500
+    },
+    "vented": {
+      "n": "Ventilated seats",
+      "d": "Perforated cushions draw cool air through the seat.",
+      "p": 700
+    },
+    "massage": {
+      "n": "Massage",
+      "d": "Ten programmes in the front seats, with adjustable intensity.",
+      "p": 1600
+    },
+    "recline": {
+      "n": "Reclining rear chairs",
+      "d": "Rear chairs recline to 42° with powered leg rests.",
+      "p": 2200,
+      "needs": [
+        "lounge",
+        "six"
+      ]
+    },
+    "screens": {
+      "n": "Rear entertainment",
+      "d": "Two 11-inch screens on the backs of the front seats.",
+      "p": 1900,
+      "needs": [
+        "twoPlusTwo",
+        "five",
+        "lounge",
+        "six",
+        "seven"
+      ]
+    }
+  },
   "ambientPresets": {
     "clay": {
       "n": "Clay",
@@ -1288,6 +1373,12 @@
       "d": "The band of material across the dashboard, framing the screen."
     },
     {
+      "id": "details",
+      "g": "Interior",
+      "n": "Cabin details",
+      "d": "The wheel in your hands, the dash in front of you, the roof above and the comfort around you."
+    },
+    {
       "id": "ambient",
       "g": "Interior",
       "n": "Ambient light",
@@ -1303,6 +1394,7 @@
   "cabinSteps": [
     "seats",
     "trim",
+    "details",
     "ambient"
   ],
   "defaultBuild": {
@@ -1338,6 +1430,11 @@
     "quilt": "diamond",
     "stitch": "clay",
     "trim": "carbon",
+    "steer": "round",
+    "dashTone": "match",
+    "carpet": "obsidian",
+    "headliner": "standard",
+    "comfort": [],
     "amb": "#e0a65a",
     "ambMode": "breathe",
     "ambBri": 0.8,

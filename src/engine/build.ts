@@ -2,7 +2,11 @@ import {
   ACCENTS,
   AMBIENT_PRESETS,
   BODY_TYPES,
+  COMFORTS,
+  DASH_TONES,
   EXHAUSTS,
+  HEADLINERS,
+  STEERINGS,
   MODS,
   SEATINGS,
   AMBIENT_MODES,
@@ -50,7 +54,12 @@ export const RANGES = {
 /** Keys in canonical order; serialisation and commission numbers depend on it. */
 export const BUILD_KEYS = Object.keys(DEFAULT_BUILD) as OptionKey[];
 
-export const cloneBuild = (b: Build): Build => ({ ...b, packs: [...b.packs], mods: [...b.mods] });
+export const cloneBuild = (b: Build): Build => ({
+  ...b,
+  packs: [...b.packs],
+  mods: [...b.mods],
+  comfort: [...b.comfort],
+});
 
 export const sameValue = (a: unknown, b: unknown) =>
   Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((x, i) => x === b[i]) : a === b;
@@ -73,6 +82,10 @@ const CATALOGUE: Partial<Record<OptionKey, Record<string, unknown>>> = {
   spoiler: SPOILERS,
   grille: GRILLES,
   exhaust: EXHAUSTS,
+  steer: STEERINGS,
+  dashTone: DASH_TONES,
+  carpet: SEAT_COLOURS,
+  headliner: HEADLINERS,
   sig: LIGHT_SIGNATURES,
   ltint: LAMP_TINTS,
   seatMat: SEAT_MATERIALS,
@@ -124,6 +137,10 @@ export function coerce<K extends OptionKey>(key: K, value: unknown): Build[K] | 
       return Array.isArray(value) && value.every((m) => typeof m === 'string' && m in MODS)
         ? out([...new Set(value)])
         : undefined;
+    case 'comfort':
+      return Array.isArray(value) && value.every((c) => typeof c === 'string' && c in COMFORTS)
+        ? out([...new Set(value)])
+        : undefined;
     case 'glow':
       return value === 'none' || (typeof value === 'string' && value in AMBIENT_PRESETS)
         ? out(value)
@@ -143,7 +160,7 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
   const value = coerce(key, raw);
   if (value === undefined) return { ok: false, reason: 'That option is not available.' };
   if (key === 'region') return { ok: false, reason: 'Use applyRegion to change region.' };
-  const av = availability(key, value, b.region, b.body);
+  const av = availability(key, value, b.region, { body: b.body, seating: b.seating });
   if (!av.ok) return { ok: false, reason: av.reason ?? 'That option is not available.' };
   if (sameValue(b[key], value)) return { ok: true, changed: false, build: b };
 
@@ -166,6 +183,17 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
       prev.mods = b.mods;
       next.mods = kept;
       build.mods = kept;
+    }
+  }
+  // Comfort features that need a particular seating layout come off when the layout changes.
+  if (key === 'body' || key === 'seating') {
+    const kept = build.comfort.filter(
+      (c) => !COMFORTS[c].needs || COMFORTS[c].needs!.includes(build.seating),
+    );
+    if (kept.length !== build.comfort.length) {
+      prev.comfort = b.comfort;
+      next.comfort = kept;
+      build.comfort = kept;
     }
   }
   if (key === 'packs') {
@@ -225,6 +253,8 @@ export function normalize(input: unknown): Build {
 export function fitBody(b: Build): Build {
   const body = BODY_TYPES[b.body];
   const mods = b.mods.filter((m) => MODS[m].bodies.includes(b.body));
-  if (body.layouts.includes(b.seating) && mods.length === b.mods.length) return b;
-  return { ...cloneBuild(b), seating: body.layouts.includes(b.seating) ? b.seating : body.seating, mods };
+  const seating = body.layouts.includes(b.seating) ? b.seating : body.seating;
+  const comfort = b.comfort.filter((c) => !COMFORTS[c].needs || COMFORTS[c].needs!.includes(seating));
+  if (seating === b.seating && mods.length === b.mods.length && comfort.length === b.comfort.length) return b;
+  return { ...cloneBuild(b), seating, mods, comfort };
 }

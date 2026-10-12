@@ -13,6 +13,8 @@ import {
   CALIPERS,
   FINISHES,
   AMBIENT_PRESETS,
+  DASH_TONES,
+  HEADLINERS,
   LAMP_TINTS,
   LIVERIES,
   type ModId,
@@ -250,7 +252,8 @@ export class CarModel {
     const T = TRIMS[b.trim];
     this.trimS = paintState({ color: T.a, pat: T.id, pc: T.b, min: -0.7, max: 0.8 });
     this.trimMat = makePaint(this.trimS, { r: T.ro, m: T.me, cc: 0.8 });
-    const carpetMat = new THREE.MeshStandardMaterial({ color: lin('#18191c'), roughness: 1 });
+    const carpetMat = new THREE.MeshStandardMaterial({ color: lin(SEAT_COLOURS[b.carpet].c), roughness: 1 });
+    this.carpetMat = carpetMat;
 
     this.disposables.push(
       this.bodyMat,
@@ -391,8 +394,15 @@ export class CarModel {
       );
     }
     this.disposables.push(this.fabricMat);
-    this.roofMesh = mesh(g.roofGeometry(), this.roofBlackMat);
+    // The roof pivots about its centre so the cabin view can tilt it to show the headliner.
+    const roofGeo = g.roofGeometry();
+    roofGeo.computeBoundingBox();
+    const pivot = roofGeo.boundingBox!.getCenter(new THREE.Vector3()).setZ(0);
+    roofGeo.translate(-pivot.x, -pivot.y, 0);
+    this.roofMesh = mesh(roofGeo, this.roofBlackMat);
     this.roofMesh.renderOrder = 2;
+    this.roofMesh.position.copy(pivot);
+    this.buildHeadliner(pivot);
     this.addPart('roof', this.roofMesh, [0, 0.95, 0]);
 
     const grilleGeo = g.endPatch(
@@ -1062,6 +1072,116 @@ export class CarModel {
     });
   }
 
+  private carpetMat!: THREE.MeshStandardMaterial;
+  private headlinerMat = new THREE.MeshStandardMaterial({
+    color: 0xc9c6bf,
+    roughness: 0.95,
+    side: THREE.DoubleSide,
+  });
+  private stars: THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial>[] = [];
+  private steerTilt = new THREE.Group();
+
+  /** Headliner under the roof skin, with starlight points that twinkle in two phases. */
+  private buildHeadliner(pivot: THREE.Vector3) {
+    const g = this.geo;
+    const geo = g.roofGeometry(-0.006);
+    geo.translate(-pivot.x, -pivot.y, 0);
+    const lining = new THREE.Mesh(geo, this.headlinerMat);
+    lining.name = 'headliner';
+    this.roofMesh.add(lining);
+    this.disposables.push(this.headlinerMat);
+    const { x0, x1, u0 } = g.roofSpan();
+    for (let set = 0; set < 2; set++) {
+      const pts: number[] = [];
+      for (let i = 0; i < 160; i++) {
+        const x = x0 + 0.06 + Math.random() * (x1 - x0 - 0.12);
+        const u = u0 + 0.06 + Math.random() * (1 - 2 * u0 - 0.12);
+        // Just above the lining, so they read both from inside and from above in the cabin view.
+        const p = g.glassPoint(x, u, 0.0);
+        pts.push(p.x - pivot.x, p.y - pivot.y, p.z);
+      }
+      const pg = new THREE.BufferGeometry();
+      pg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      const pm = new THREE.PointsMaterial({
+        size: 0.11,
+        map: this.glowTex,
+        color: 0xffffff,
+        toneMapped: false,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        opacity: 0,
+      });
+      const points = new THREE.Points(pg, pm);
+      points.visible = false;
+      points.renderOrder = 6;
+      this.roofMesh.add(points);
+      this.stars.push(points);
+      this.disposables.push(pm, pg);
+    }
+  }
+
+  private updHeadliner(animate: boolean) {
+    const h = this.build.headliner;
+    tweenColour(this.headlinerMat.color, HEADLINERS[h].c, animate ? dur(0.6) : 0);
+    for (const p of this.stars) p.visible = h === 'starlight';
+  }
+
+  /** Steering wheel rim for the chosen style: round, flat-bottomed or yoke. */
+  private buildSteeringWheel() {
+    const t = this.steerTilt;
+    for (const c of [...t.children]) {
+      t.remove(c);
+      (c as THREE.Mesh).geometry?.dispose();
+    }
+    const R = 0.14;
+    const arc = (start: number, len: number) => {
+      const geo = new THREE.TorusGeometry(R, 0.019, 12, 48, len);
+      geo.rotateZ(start);
+      const m = mesh(geo, this.dashMat);
+      m.rotation.y = Math.PI / 2;
+      return m;
+    };
+    const bar = (y: number, half: number) => {
+      const m = mesh(
+        new THREE.CylinderGeometry(0.019, 0.019, half * 2, 12).rotateZ(Math.PI / 2),
+        this.dashMat,
+      );
+      m.rotation.y = Math.PI / 2;
+      m.position.y = y;
+      return m;
+    };
+    const style = this.build.steer;
+    if (style === 'round') t.add(arc(0, Math.PI * 2));
+    else if (style === 'flat') {
+      const gap = Math.PI / 7;
+      t.add(arc(-Math.PI / 2 + gap, Math.PI * 2 - gap * 2), bar(-R * Math.cos(gap), R * Math.sin(gap)));
+    } else {
+      const a = 0.95;
+      t.add(arc(-a, a * 2), arc(Math.PI - a, a * 2), bar(-R * Math.sin(a), R * Math.cos(a)));
+    }
+    const hub = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.03, 24), this.trimDarkMat);
+    hub.rotation.z = Math.PI / 2;
+    t.add(hub);
+    for (const a of style === 'yoke' ? [Math.PI / 2, -Math.PI / 2] : [0, 2.2, -2.2]) {
+      const sp = mesh(new THREE.BoxGeometry(0.012, 0.12, 0.03), this.trimMat);
+      sp.position.set(0, Math.cos(a) * 0.065, Math.sin(a) * 0.065);
+      sp.rotation.x = a;
+      t.add(sp);
+    }
+  }
+
+  private updSteering(animate: boolean) {
+    this.buildSteeringWheel();
+    if (animate && !RM())
+      gsap.fromTo(this.steerTilt.rotation, { x: -Math.PI * 2 }, { x: 0, duration: 1, ease: 'power3.out' });
+  }
+
+  private dashHex() {
+    const b = this.build;
+    return b.dashTone === 'match' ? SEAT_COLOURS[b.seatCol].c : (DASH_TONES[b.dashTone].c ?? '#1b1c1f');
+  }
+
   /** Seat parts currently in the cabin, rebuilt when the seating layout changes. */
   private seatParts: Part[] = [];
 
@@ -1084,8 +1204,17 @@ export class CarModel {
       back(x, z, 0.46),
       head(x, z, floor + 0.545),
     ];
+    const recline = this.build.comfort.includes('recline');
     const captain = (x: number, z: number) => [
-      ...bucket(x, z),
+      ...(recline
+        ? [
+            cushion(x, z, 0.46),
+            mesh(boxAt(0.12, 0.46, 0.46, x - 0.33, floor + 0.23, z, 0.55), m),
+            mesh(boxAt(0.09, 0.13, 0.26, x - 0.48, floor + 0.42, z, 0.55), m),
+            // Powered leg rest, folded out from the front of the cushion.
+            mesh(boxAt(0.3, 0.05, 0.4, x + 0.36, floor + 0.04, z, -0.35), m),
+          ]
+        : bucket(x, z)),
       mesh(boxAt(0.36, 0.05, 0.05, x - 0.02, floor + 0.2, z + 0.26), m),
       mesh(boxAt(0.36, 0.05, 0.05, x - 0.02, floor + 0.2, z - 0.26), m),
     ];
@@ -1099,8 +1228,21 @@ export class CarModel {
       objs.forEach((o) => grp.add(o));
       this.seatParts.push(this.addPart(name, grp, off, this.cabin));
     };
-    add('seat_fr', bucket(fs, sz), [0, 0.45, 0]);
-    add('seat_fl', bucket(fs, -sz), [0, 0.45, 0]);
+    // Rear entertainment: lit screens on the backs of the front seats.
+    const screens = this.build.comfort.includes('screens') && this.build.seating !== 'two';
+    const screen = (z: number) => {
+      const sm = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.24, 0.14),
+        new THREE.MeshBasicMaterial({ map: this.screenTex, toneMapped: false }),
+      );
+      sm.rotation.set(0, -Math.PI / 2, 0);
+      sm.rotateX(0.2);
+      sm.position.set(fs - 0.385, floor + 0.36, z);
+      this.disposables.push(sm.material);
+      return sm;
+    };
+    add('seat_fr', [...bucket(fs, sz), ...(screens ? [screen(sz)] : [])], [0, 0.45, 0]);
+    add('seat_fl', [...bucket(fs, -sz), ...(screens ? [screen(-sz)] : [])], [0, 0.45, 0]);
     const rs = fs - 0.9;
     const ts = rs - 0.86;
     const console2 = (x: number) => mesh(boxAt(0.5, 0.2, 0.22, x + 0.05, floor + 0.11, 0), this.dashMat);
@@ -1219,18 +1361,8 @@ export class CarModel {
     const tilt = new THREE.Group();
     tilt.rotation.z = 0.42;
     steer.add(tilt);
-    const rim = mesh(new THREE.TorusGeometry(0.14, 0.019, 12, 48), this.dashMat);
-    rim.rotation.y = Math.PI / 2;
-    tilt.add(rim);
-    const hub = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.03, 24), this.trimDarkMat);
-    hub.rotation.z = Math.PI / 2;
-    tilt.add(hub);
-    for (const a of [0, 2.2, -2.2]) {
-      const sp = mesh(new THREE.BoxGeometry(0.012, 0.12, 0.03), this.trimMat);
-      sp.position.set(0, Math.cos(a) * 0.065, Math.sin(a) * 0.065);
-      sp.rotation.x = a;
-      tilt.add(sp);
-    }
+    tilt.add(this.steerTilt);
+    this.buildSteeringWheel();
     const col = mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.2, 12), this.trimDarkMat);
     col.rotation.z = Math.PI / 2 + 0.42;
     col.position.set(0.1, -0.04, 0);
@@ -1422,6 +1554,7 @@ export class CarModel {
     this.buildExhaust();
     this.updMods([], false);
     this.updGlow(false);
+    this.updHeadliner(false);
   }
 
   private updPaint(animate: boolean) {
@@ -1667,7 +1800,7 @@ export class CarModel {
     const b = this.build;
     const col = SEAT_COLOURS[b.seatCol].c;
     sweepTo(this.seat, { col, pat: QUILTS[b.quilt].id, pc: stitchHex(b) }, animate && !RM(), 1.3);
-    sweepTo(this.dash, { col, pat: 0, pc: '#000000' }, animate && !RM(), 1.3);
+    sweepTo(this.dash, { col: this.dashHex(), pat: 0, pc: '#000000' }, animate && !RM(), 1.3);
     gsap.to([this.seatMat, this.dashMat], {
       roughness: SEAT_MATERIALS[b.seatMat].ro,
       duration: animate ? dur(0.8) : 0,
@@ -1775,6 +1908,21 @@ export class CarModel {
         case 'mods':
           run.add('mods');
           break;
+        case 'steer':
+          run.add('steer');
+          break;
+        case 'dashTone':
+          run.add('seats');
+          break;
+        case 'carpet':
+          run.add('carpet');
+          break;
+        case 'headliner':
+          run.add('headliner');
+          break;
+        case 'comfort':
+          run.add('seating');
+          break;
         case 'exhaust':
           run.add('exhaust');
           break;
@@ -1847,6 +1995,15 @@ export class CarModel {
         case 'mods':
           this.updMods(prev.mods, animate);
           break;
+        case 'steer':
+          this.updSteering(animate);
+          break;
+        case 'carpet':
+          tweenColour(this.carpetMat.color, SEAT_COLOURS[this.build.carpet].c, animate ? dur(0.6) : 0);
+          break;
+        case 'headliner':
+          this.updHeadliner(animate);
+          break;
         case 'exhaust':
           this.buildExhaust();
           break;
@@ -1882,9 +2039,28 @@ export class CarModel {
     }
     const cut = this.fx.cut;
     const roofMat = this.roofMesh.material as THREE.Material;
-    this.roofMesh.position.y += cut * 1.45;
-    this.roofMesh.position.x -= cut * 0.35;
-    roofMat.opacity = (1 - cut) * (1 - this.fx.roofFade);
+    const starlight = this.build.headliner === 'starlight';
+    // With a starlight headliner the cabin view looks through the roof: the painted skin fades
+    // but the starlit ceiling stays, translucent, over the cabin. Otherwise the roof lifts away.
+    if (starlight) {
+      this.roofMesh.position.y += cut * 0.04;
+      roofMat.opacity = (1 - cut) * (1 - this.fx.roofFade);
+    } else {
+      this.roofMesh.position.y += cut * 1.45;
+      this.roofMesh.position.x -= cut * 0.35;
+      roofMat.opacity = (1 - cut) * (1 - this.fx.roofFade);
+    }
+    // A faded skin must not write depth, or it hides the lining and stars beneath it.
+    roofMat.visible = roofMat.opacity > 0.01;
+    roofMat.depthWrite = roofMat.opacity > 0.98;
+    const lining = starlight ? (1 - cut * 0.45) * (1 - this.fx.roofFade) : roofMat.opacity;
+    this.headlinerMat.opacity = lining;
+    this.headlinerMat.transparent = lining < 1;
+    if (starlight)
+      this.stars.forEach(
+        (p, i) =>
+          (p.material.opacity = (0.55 + 0.45 * Math.sin(t * 2.4 + i * Math.PI)) * Math.min(1, lining * 1.6)),
+      );
     this.glassMat.opacity = this.fx.glassOp * (1 - cut * 0.88);
     this.frameMat.opacity = 1 - cut * 0.9;
 
