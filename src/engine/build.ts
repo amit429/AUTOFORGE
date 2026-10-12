@@ -1,5 +1,6 @@
 import {
   ACCENTS,
+  BODY_TYPES,
   AMBIENT_MODES,
   CALIPERS,
   DEFAULT_BUILD,
@@ -51,6 +52,7 @@ export const sameValue = (a: unknown, b: unknown) =>
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const CATALOGUE: Partial<Record<OptionKey, Record<string, unknown>>> = {
+  body: BODY_TYPES,
   finish: FINISHES,
   livery: LIVERIES,
   livCol: LIVERY_COLOURS,

@@ -3,7 +3,24 @@
     "model": "Halden Vesper GT (fictional)",
     "basePriceUSD": 92400,
     "customPaintPriceUSD": 4900,
-    "priceNote": "All prices in USD before conversion. Display price = usd * region.rate * region.tax, rounded (1000 for INR/JPY, 10 otherwise). Representative values only."
+    "priceNote": "All prices in USD before conversion. The base price comes from the body style. Display price = usd * region.rate * region.tax, rounded (1000 for INR/JPY, 10 otherwise). Representative values only."
+  },
+  "bodyTypes": {
+    "coupe": {
+      "n": "Coupe",
+      "d": "Two doors, a long bonnet and a roof that falls away to a short tail.",
+      "p": 92400
+    },
+    "sedan": {
+      "n": "Sedan",
+      "d": "Four doors, a separate boot and room for five grown-ups.",
+      "p": 78600
+    },
+    "suv": {
+      "n": "SUV",
+      "d": "Tall, long and commanding, with a squared-off tail and a raised ride.",
+      "p": 88900
+    }
   },
   "paints": {
     "vesper": {
@@ -909,6 +926,12 @@
   },
   "steps": [
     {
+      "id": "shape",
+      "g": "Exterior",
+      "n": "Body style",
+      "d": "Start with the shape. Every option that follows is fitted to the body you pick here."
+    },
+    {
       "id": "paint",
       "g": "Exterior",
       "n": "Paint",
@@ -976,6 +999,7 @@
   ],
   "defaultBuild": {
     "region": "in",
+    "body": "coupe",
     "paint": "silver",
     "custom": "#4f7d8c",
     "finish": "metallic",

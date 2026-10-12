@@ -1,5 +1,9 @@
-/** Points on the car that DOM overlays attach to, in car space (+Z is the car's right side). */
+/**
+ * Points on the car that DOM overlays attach to, in car space (+Z is the car's right side).
+ * They are derived from the body geometry, so they follow every body style.
+ */
 import type { StepId } from '@/data/options';
+import type { BodyGeometry } from './car/body';
 
 type V3 = [number, number, number];
 
@@ -10,15 +14,6 @@ export interface Hotspot {
   /** Outward normal; the hotspot hides when facing away from the camera. */
   n: V3;
 }
-
-export const HOTSPOTS: Hotspot[] = [
-  { step: 'paint', label: 'Paint and livery', p: [-0.7, 0.78, 1.0], n: [0, 0, 1] },
-  { step: 'wheels', label: 'Wheels and brakes', p: [1.41, 0.37, 0.99], n: [0.2, 0, 1] },
-  { step: 'body', label: 'Mirrors and accents', p: [0.52, 1.1, 1.16], n: [0.2, 0.3, 1] },
-  { step: 'lights', label: 'Light signature', p: [2.44, 0.66, 0.6], n: [1, 0, 0.3] },
-  { step: 'seats', label: 'Seats', p: [-0.3, 1.12, 0.4], n: [0, 1, 0.2] },
-  { step: 'body', label: 'Rear aero', p: [-2.12, 1.06, 0], n: [-0.6, 1, 0] },
-];
 
 export interface PartLabel {
   title: string;
@@ -31,65 +26,91 @@ export interface PartLabel {
   onRoot?: boolean;
 }
 
-export const PART_LABELS: PartLabel[] = [
-  {
-    title: 'Roof panel',
-    sub: 'Body, black, carbon or glass',
-    p: [-0.6, 1.38, 0],
-    part: 'roof',
-    step: 'body',
-  },
-  {
-    title: 'Glasshouse',
-    sub: 'Tint within legal limit',
-    p: [-1.45, 1.15, 0.7],
-    part: 'glass',
-    step: 'glass',
-  },
-  { title: 'Door skins', sub: 'Paint and livery', p: [-0.7, 0.8, 0.99], part: 'door_r', step: 'paint' },
+/** Hotspot labels, fixed in count and order so the DOM can be rendered once. */
+export const HOTSPOT_LABELS: { step: StepId; label: string }[] = [
+  { step: 'paint', label: 'Paint and livery' },
+  { step: 'wheels', label: 'Wheels and brakes' },
+  { step: 'body', label: 'Mirrors and accents' },
+  { step: 'lights', label: 'Light signature' },
+  { step: 'seats', label: 'Seats' },
+  { step: 'body', label: 'Rear aero' },
+];
+
+export function hotspotsFor(g: BodyGeometry): Hotspot[] {
+  const s = g.spec;
+  const door = s.doors[0]!;
+  const dx = (door[0] + door[1]) / 2;
+  const dy = (g.belt(dx) + g.bottomY(dx)) / 2 + 0.05;
+  const mx = s.aBase - 0.06;
+  const my = g.belt(mx) + 0.1;
+  const fs = s.aBase - 0.78;
+  const pts: [V3, V3][] = [
+    [
+      [dx, dy, g.sideZ(dx, dy) + 0.01],
+      [0, 0, 1],
+    ],
+    [
+      [s.frontAxle, s.tyreR, s.track + 0.15],
+      [0.2, 0, 1],
+    ],
+    [
+      [mx + 0.02, my, g.sideZ(mx, my - 0.1) + 0.15],
+      [0.2, 0.3, 1],
+    ],
+    [
+      [s.front, g.headY, 0.55],
+      [1, 0, 0.3],
+    ],
+    [
+      [fs, g.floorY + 0.4, 0.4],
+      [0, 1, 0.2],
+    ],
+    [
+      [s.rear + 0.25, g.topY(s.rear + 0.25) + 0.12, 0],
+      [-0.6, 1, 0],
+    ],
+  ];
+  return HOTSPOT_LABELS.map((h, i) => ({ ...h, p: pts[i]![0], n: pts[i]![1] }));
+}
+
+export const PART_LABEL_TEXT: Omit<PartLabel, 'p'>[] = [
+  { title: 'Roof panel', sub: 'Body, black, carbon or glass', part: 'roof', step: 'body' },
+  { title: 'Glasshouse', sub: 'Tint within legal limit', part: 'glass', step: 'glass' },
+  { title: 'Door skins', sub: 'Paint and livery', part: 'door_r', step: 'paint' },
   {
     title: 'Wheels and brakes',
     sub: '5 designs, 19 to 22 inch',
-    p: [1.41, 0.37, 0.97],
     part: 'wheel_fr',
     step: 'wheels',
     onRoot: true,
   },
-  {
-    title: 'Light signature',
-    sub: 'Blade, quad or arc',
-    p: [2.42, 0.66, 0.6],
-    part: 'head_r',
-    step: 'lights',
-  },
-  { title: 'Grille', sub: 'Honeycomb, slats or sealed', p: [2.43, 0.47, -0.3], part: 'grille', step: 'body' },
-  {
-    title: 'Rear aero',
-    sub: 'Ducktail or swan-neck wing',
-    p: [-2.08, 1.0, -0.5],
-    part: 'spoiler',
-    step: 'body',
-  },
-  {
-    title: 'Seating',
-    sub: 'Material, quilting, stitching',
-    p: [-0.35, 1.05, -0.4],
-    part: 'seat_fl',
-    step: 'seats',
-  },
-  { title: 'Cabin trim', sub: 'Carbon, wood, metal', p: [0.32, 0.9, -0.5], part: 'dash', step: 'trim' },
-  {
-    title: 'Tail light bar',
-    sub: 'Sequential, full width',
-    p: [-2.35, 0.79, 0.6],
-    part: 'tail',
-    step: 'lights',
-  },
-  {
-    title: 'Accent parts',
-    sub: 'Splitter, diffuser, skirts',
-    p: [2.36, 0.27, 0.8],
-    part: 'splitter',
-    step: 'body',
-  },
+  { title: 'Light signature', sub: 'Blade, quad or arc', part: 'head_r', step: 'lights' },
+  { title: 'Grille', sub: 'Honeycomb, slats or sealed', part: 'grille', step: 'body' },
+  { title: 'Rear aero', sub: 'Ducktail or swan-neck wing', part: 'spoiler', step: 'body' },
+  { title: 'Seating', sub: 'Material, quilting, stitching', part: 'seat_fl', step: 'seats' },
+  { title: 'Cabin trim', sub: 'Carbon, wood, metal', part: 'dash', step: 'trim' },
+  { title: 'Tail light bar', sub: 'Sequential, full width', part: 'tail', step: 'lights' },
+  { title: 'Accent parts', sub: 'Splitter, diffuser, skirts', part: 'splitter', step: 'body' },
 ];
+
+export function partLabelsFor(g: BodyGeometry): PartLabel[] {
+  const s = g.spec;
+  const door = s.doors[0]!;
+  const dx = (door[0] + door[1]) / 2;
+  const mid = (s.roofFront + s.roofRear) / 2;
+  const fs = s.aBase - 0.78;
+  const pts: V3[] = [
+    [mid, s.roofY + 0.04, 0],
+    [(s.roofRear + s.cBase) / 2, g.roofLine((s.roofRear + s.cBase) / 2) - 0.12, 0.7],
+    [dx, g.belt(dx) - 0.1, g.sideZ(dx, g.belt(dx) - 0.1)],
+    [s.frontAxle, s.tyreR, s.track + 0.13],
+    [s.front, g.headY, 0.6],
+    [s.front + 0.01, s.grilleY, -0.3],
+    [s.rear + 0.25, g.topY(s.rear + 0.25) + 0.08, -0.5],
+    [fs, g.floorY + 0.35, -0.4],
+    [s.aBase - 0.18, g.belt(s.aBase), -0.5],
+    [s.rear, s.tailY, 0.6],
+    [s.front - 0.05, s.noseBottom - 0.02, 0.8],
+  ];
+  return PART_LABEL_TEXT.map((l, i) => ({ ...l, p: pts[i]! }));
+}

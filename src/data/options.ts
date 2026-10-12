@@ -3,6 +3,7 @@
 import raw from './options.json';
 
 export type RegionId = keyof typeof raw.regions;
+export type BodyTypeId = keyof typeof raw.bodyTypes;
 export type PaintId = keyof typeof raw.paints;
 export type FinishId = keyof typeof raw.finishes;
 export type LiveryId = keyof typeof raw.liveries;
@@ -25,6 +26,7 @@ export type TrimId = keyof typeof raw.trims;
 export type AmbientModeId = keyof typeof raw.ambientModes;
 export type PackId = keyof typeof raw.packs;
 export type StepId =
+  | 'shape'
   | 'paint'
   | 'livery'
   | 'wheels'
@@ -41,6 +43,7 @@ export type PaintChoice = PaintId | 'custom';
 
 export interface Build {
   region: RegionId;
+  body: BodyTypeId;
   paint: PaintChoice;
   custom: string;
   finish: FinishId;
@@ -156,6 +159,12 @@ export const META = raw.meta;
 export const BASE_PRICE_USD: number = raw.meta.basePriceUSD;
 export const CUSTOM_PAINT_USD: number = raw.meta.customPaintPriceUSD;
 
+export interface BodyType extends Priced {
+  d: string;
+}
+
+/** Body styles. `p` is the full base price of the car in USD for that body. */
+export const BODY_TYPES = raw.bodyTypes as Record<BodyTypeId, BodyType>;
 export const PAINTS = raw.paints as Record<PaintId, Paint>;
 export const FINISHES = raw.finishes as Record<FinishId, Finish>;
 export const LIVERIES = raw.liveries as Record<LiveryId, Livery>;

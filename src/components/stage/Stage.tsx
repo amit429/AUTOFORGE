@@ -8,7 +8,7 @@ import { STEPS } from '@/data/options';
 import { dur } from '@/lib/motion';
 import { useBuild } from '@/store/build';
 import { useUi } from '@/store/ui';
-import { HOTSPOTS, PART_LABELS } from '@/three/anchors';
+import { HOTSPOT_LABELS, PART_LABEL_TEXT } from '@/three/anchors';
 import { BlueprintView } from './BlueprintView';
 import { orbitAllowed, type OverlayElements } from '@/three/director';
 import { Scene } from './Scene';
@@ -23,7 +23,7 @@ const overlays: OverlayElements = {
   lines: [],
   dots: [],
   setLabelsOn(on) {
-    PART_LABELS.forEach((_, i) => {
+    PART_LABEL_TEXT.forEach((_, i) => {
       const el = overlays.labels[i];
       const ln = overlays.lines[i];
       const dot = overlays.dots[i];
@@ -76,7 +76,7 @@ export function Stage() {
         <Scene overlays={overlays} />
       </Canvas>
       <svg className={styles.leaders} aria-hidden="true">
-        {PART_LABELS.map((l, i) => (
+        {PART_LABEL_TEXT.map((l, i) => (
           <g key={l.title}>
             <line ref={(el) => void (overlays.lines[i] = el)} style={{ opacity: 0 }} />
             <circle ref={(el) => void (overlays.dots[i] = el)} r={3} style={{ opacity: 0 }} />
@@ -84,7 +84,7 @@ export function Stage() {
         ))}
       </svg>
       <div className={styles.labels}>
-        {PART_LABELS.map((l, i) => (
+        {PART_LABEL_TEXT.map((l, i) => (
           <button
             key={l.title}
             ref={(el) => void (overlays.labels[i] = el)}
@@ -104,7 +104,7 @@ export function Stage() {
         ))}
       </div>
       <div className={styles.hotspots}>
-        {HOTSPOTS.map((h, i) => (
+        {HOTSPOT_LABELS.map((h, i) => (
           <button
             key={h.label}
             ref={(el) => void (overlays.hotspots[i] = el)}

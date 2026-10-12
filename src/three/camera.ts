@@ -5,6 +5,7 @@
 import gsap from 'gsap';
 import type * as THREE from 'three';
 import type { StepId } from '@/data/options';
+import type { BodyGeometry } from './car/body';
 import { clamp, dur, isMobile } from '@/lib/motion';
 
 export interface Pose {
@@ -17,6 +18,7 @@ export interface Pose {
 }
 
 export const POSES: Record<StepId | 'exploded' | 'cabin' | 'summary' | 'regionScreen', Pose> = {
+  shape: { theta: 0.95, phi: 1.32, r: 9.6, tx: 0, ty: 0.6, tz: 0 },
   paint: { theta: 0.85, phi: 1.3, r: 8.6, tx: 0, ty: 0.6, tz: 0 },
   livery: { theta: 0.4, phi: 0.98, r: 9.2, tx: 0, ty: 0.5, tz: 0 },
   wheels: { theta: 0.2, phi: 1.42, r: 4.4, tx: 1.2, ty: 0.42, tz: 0.6 },
@@ -32,6 +34,22 @@ export const POSES: Record<StepId | 'exploded' | 'cabin' | 'summary' | 'regionSc
   summary: { theta: 0.9, phi: 1.36, r: 9.8, tx: 0, ty: 0.55, tz: 0 },
   regionScreen: { theta: 1.4, phi: 1.34, r: 9.5, tx: 0, ty: 0.55, tz: 0 },
 };
+
+/**
+ * Poses are authored for the 4.78 m coupe. Scale them to the current body so a longer car pulls
+ * the camera back and a taller one raises the target.
+ */
+export function fitPose(p: Pose, geo: BodyGeometry): Pose {
+  const ls = geo.length / 4.78;
+  const hs = geo.height / 1.32;
+  return {
+    ...p,
+    r: p.r * Math.max(ls, Math.sqrt(hs)),
+    tx: p.tx * ls,
+    ty: p.ty * hs,
+    tz: p.tz * (geo.spec.halfWidth / 0.97),
+  };
+}
 
 export type FrameName = 'config' | 'summary' | 'region' | 'none';
 

@@ -7,7 +7,6 @@
 import gsap from 'gsap';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import {
-  ACCENTS,
   CALIPERS,
   FINISHES,
   LAMP_TINTS,
@@ -25,15 +24,18 @@ import { dur, prefersReducedMotion } from '@/lib/motion';
 import { liveryOverlay } from '@/lib/patterns';
 import { useBuild } from '@/store/build';
 import { useUi } from '@/store/ui';
-import { bodyShape, cabinShape, doorShape, roofLine, roofShape } from '@/three/car/shapes';
+import { bodyGeometry } from '@/three/car/bodies';
 import styles from './BlueprintView.module.css';
 
 const S = 100;
 const X = (x: number) => (x + 2.78) * S;
-const Y = (y: number) => (1.7 - y) * S;
-const TY = (z: number) => 345 + z * S;
+const Y = (y: number) => (1.92 - y) * S;
+const TY = (z: number) => 372 + z * S;
 const path = (pts: { x: number; y: number }[]) =>
   'M' + pts.map((p) => `${X(p.x).toFixed(1)} ${Y(p.y).toFixed(1)}`).join(' L') + ' Z';
+const planPath = (pts: { x: number; z: number }[]) =>
+  'M' + pts.map((p) => `${X(p.x).toFixed(1)} ${TY(p.z).toFixed(1)}`).join(' L') + ' Z';
+const mm = (m: number) => Math.round(m * 1000).toLocaleString('en-GB');
 
 const DARK = '#121316';
 
@@ -45,16 +47,18 @@ export function BlueprintView() {
   const root = useRef<HTMLDivElement>(null);
   const svg = useRef<SVGSVGElement>(null);
 
-  const curves = useMemo(
-    () => ({
-      body: path(bodyShape().getPoints(20)),
-      door: path(doorShape().getPoints(4)),
-      cab: path(cabinShape().getPoints(20)),
-      roof: path(roofShape().getPoints(6)),
-      roofXs: roofLine().map((p) => p.x),
-    }),
-    [],
-  );
+  const geo = bodyGeometry(b.body);
+  const sp = geo.spec;
+  const curves = useMemo(() => {
+    const g = bodyGeometry(b.body);
+    return {
+      body: path(g.sideOutline()),
+      doors: g.spec.doors.map(([x0, x1]) => path(g.doorSideOutline(x0, x1))),
+      cab: path(g.cabinOutline()),
+      roof: path(g.roofOutline()),
+      plan: planPath(g.planOutline()),
+    };
+  }, [b.body]);
 
   const livery = LIVERIES[b.livery];
   const side = useMemo(
@@ -120,7 +124,7 @@ export function BlueprintView() {
       delay: 0.5,
       stagger: 0.015,
     });
-  }, [visible]);
+  }, [visible, b.body]);
 
   useEffect(() => {
     if (root.current) root.current.style.visibility = 'hidden';
@@ -129,23 +133,48 @@ export function BlueprintView() {
   const paint = paintHex(b);
   const accent = b.accent === 'body' ? paint : DARK;
   const roofC = b.roof === 'body' ? paint : b.roof === 'carbon' ? '#2a2e34' : DARK;
-  const R = RIM_RADIUS[`${b.size}`];
+  const R = RIM_RADIUS[`${b.size}`] * (sp.tyreR / 0.37);
+  const T = sp.tyreR;
   const glassOpacity = 0.55 + (1 - b.vlt / 100) * 0.4;
 
+  const door0 = sp.doors[0]!;
+  const dmx = (door0[0] + door0[1]) / 2;
+  const mirX = sp.aBase - 0.06;
+  const roofAero = sp.cBase < sp.rear + 0.3;
+  const aeroX = roofAero ? sp.roofRear - 0.02 : sp.rear + 0.26;
+  const aeroY = roofAero ? geo.roofLine(aeroX) + 0.01 : geo.topY(aeroX);
+  const roofX0 = sp.roofRear - (sp.roofRear - sp.cBase) * 0.28;
+  const roofX1 = sp.roofFront + (sp.aBase - sp.roofFront) * 0.18;
+  const glassHalf = geo.glassPoint((sp.roofFront + sp.roofRear) / 2, 0).z;
   const callouts: [string, string, number, number][] = [
-    ['Paint', `${optionLabel('paint', b).name}, ${FINISHES[b.finish].n.toLowerCase()}`, X(-0.75), Y(0.76)],
-    ['Livery', LIVERIES[b.livery].n, X(-1.7), Y(0.55)],
-    ['Wheels', `${WHEELS[b.wheel].n}, ${b.size}"`, X(1.41), Y(0.37)],
-    ['Lights', `${LIGHT_SIGNATURES[b.sig].n}, ${LAMP_TINTS[b.ltint].n.toLowerCase()}`, X(2.38), Y(0.68)],
-    ['Roof', ROOFS[b.roof].n, X(-0.6), Y(1.36)],
-    ['Rear aero', SPOILERS[b.spoiler].n, X(-2.1), Y(1.02)],
-    ['Side glass', `${b.vlt}% light`, X(-1.2), Y(1.08)],
-    ['Accents', ACCENTS[b.accent].n, X(0.5), TY(1.08)],
+    ['Body', `${optionLabel('body', b).name}`, X(dmx + 0.35), Y(geo.belt(dmx) - 0.18)],
+    [
+      'Paint',
+      `${optionLabel('paint', b).name}, ${FINISHES[b.finish].n.toLowerCase()}`,
+      X(dmx),
+      Y(geo.belt(dmx) - 0.1),
+    ],
+    ['Livery', LIVERIES[b.livery].n, X(sp.rearAxle - 0.5), Y(geo.belt(sp.rearAxle - 0.5) - 0.2)],
+    ['Wheels', `${WHEELS[b.wheel].n}, ${b.size}"`, X(sp.frontAxle), Y(T)],
+    [
+      'Lights',
+      `${LIGHT_SIGNATURES[b.sig].n}, ${LAMP_TINTS[b.ltint].n.toLowerCase()}`,
+      X(sp.front - 0.03),
+      Y(geo.headY),
+    ],
+    ['Roof', ROOFS[b.roof].n, X((sp.roofFront + sp.roofRear) / 2), Y(sp.roofY)],
+    ['Rear aero', SPOILERS[b.spoiler].n, X(aeroX), Y(aeroY + 0.03)],
+    [
+      'Side glass',
+      `${b.vlt}% light`,
+      X((sp.roofRear + sp.cBase) / 2),
+      Y(geo.roofLine((sp.roofRear + sp.cBase) / 2) - 0.15),
+    ],
   ];
 
   const spokes = (cx: number, cy: number) => {
     const out: React.ReactNode[] = [];
-    const sp = (a: number, w: number, k: string) => (
+    const spk = (a: number, w: number, k: string) => (
       <path
         key={k}
         d={`M${cx + Math.cos(a) * 7} ${cy + Math.sin(a) * 7} L${cx + Math.cos(a) * R * S * 0.94} ${cy + Math.sin(a) * R * S * 0.94}`}
@@ -157,15 +186,16 @@ export function BlueprintView() {
     if (b.wheel === 'five')
       for (let i = 0; i < 5; i++) {
         out.push(
-          sp((i / 5) * Math.PI * 2 - 0.12, 2.4, `a${i}`),
-          sp((i / 5) * Math.PI * 2 + 0.12, 2.4, `b${i}`),
+          spk((i / 5) * Math.PI * 2 - 0.12, 2.4, `a${i}`),
+          spk((i / 5) * Math.PI * 2 + 0.12, 2.4, `b${i}`),
         );
       }
     else if (b.wheel === 'ten')
-      for (let i = 0; i < 10; i++) out.push(sp((i / 10) * Math.PI * 2, 1.6, `${i}`));
+      for (let i = 0; i < 10; i++) out.push(spk((i / 10) * Math.PI * 2, 1.6, `${i}`));
     else if (b.wheel === 'turbine')
-      for (let i = 0; i < 14; i++) out.push(sp((i / 14) * Math.PI * 2, 1.3, `${i}`));
-    else if (b.wheel === 'mesh') for (let i = 0; i < 16; i++) out.push(sp((i / 16) * Math.PI * 2, 1, `${i}`));
+      for (let i = 0; i < 14; i++) out.push(spk((i / 14) * Math.PI * 2, 1.3, `${i}`));
+    else if (b.wheel === 'mesh')
+      for (let i = 0; i < 16; i++) out.push(spk((i / 16) * Math.PI * 2, 1, `${i}`));
     else
       out.push(
         <circle key="d" cx={cx} cy={cy} r={R * S * 0.7} fill="none" stroke="#17181b" strokeWidth={1.2} />,
@@ -173,32 +203,31 @@ export function BlueprintView() {
     return out;
   };
 
-  const planD = `M${X(-2.2)} ${TY(-0.99)} L${X(2.15)} ${TY(-0.99)} Q${X(2.42)} ${TY(-0.99)} ${X(2.42)} ${TY(-0.62)} L${X(2.42)} ${TY(0.62)} Q${X(2.42)} ${TY(0.99)} ${X(2.15)} ${TY(0.99)} L${X(-2.2)} ${TY(0.99)} Q${X(-2.36)} ${TY(0.99)} ${X(-2.36)} ${TY(0.7)} L${X(-2.36)} ${TY(-0.7)} Q${X(-2.36)} ${TY(-0.99)} ${X(-2.2)} ${TY(-0.99)} Z`;
-  const rx0 = Math.min(...curves.roofXs);
-  const rx1 = Math.max(...curves.roofXs);
   const ln = styles.ln!;
   const fill = styles.fill!;
+  const dimX = X(sp.rear) - 30;
+  const planDimX = X(sp.front) + 22;
 
   return (
     <div ref={root} className={styles.bp} aria-hidden={!visible} style={{ opacity: 0 }}>
-      <svg ref={svg} viewBox="-40 -40 1060 520" role="img" aria-label="Blueprint of your build">
+      <svg ref={svg} viewBox="-40 -30 1060 540" role="img" aria-label="Blueprint of your build">
         <defs>
           <clipPath id="bpClipS">
             <path d={curves.body} />
-            <path d={curves.door} />
           </clipPath>
           <clipPath id="bpClipT">
-            <path d={planD} />
+            <path d={curves.plan} />
           </clipPath>
         </defs>
         <text x={X(-2.7)} y={-14}>
           Side elevation
         </text>
-        <path d={`M${X(-2.75)} ${Y(0)} H${X(2.78)}`} className={`${ln} ${styles.dash}`} />
+        <path d={`M${X(sp.rear) - 40} ${Y(0)} H${X(sp.front) + 30}`} className={`${ln} ${styles.dash}`} />
         <path d={curves.body} className={`${ln} ${fill}`} fill={paint} />
-        <path d={curves.door} className={`${ln} ${styles.thin} ${fill}`} fill={paint} />
-        {side && <image href={side} x={0} y={0} width={556} height={170} clipPath="url(#bpClipS)" />}
-        <path d={curves.door} className={`${ln} ${styles.thin}`} />
+        {side && <image href={side} x={0} y={Y(1.7)} width={556} height={170} clipPath="url(#bpClipS)" />}
+        {curves.doors.map((d, i) => (
+          <path key={i} d={d} className={`${ln} ${styles.thin}`} />
+        ))}
         <path
           d={curves.cab}
           className={`${ln} ${fill}`}
@@ -208,8 +237,8 @@ export function BlueprintView() {
         />
         {b.roof !== 'glass' && <path d={curves.roof} className={`${ln} ${fill}`} fill={roofC} />}
         <rect
-          x={X(0.42)}
-          y={Y(1.12)}
+          x={X(mirX) - 4}
+          y={Y(geo.belt(mirX) + 0.13)}
           width={20}
           height={11}
           rx={3}
@@ -218,17 +247,20 @@ export function BlueprintView() {
         />
         {b.spoiler === 'duck' && (
           <path
-            d={`M${X(-1.95)} ${Y(1.0)} L${X(-2.3)} ${Y(1.07)} L${X(-2.28)} ${Y(0.98)} Z`}
+            d={`M${X(aeroX + 0.13)} ${Y(aeroY)} L${X(aeroX - 0.2)} ${Y(aeroY + 0.08)} L${X(aeroX - 0.18)} ${Y(aeroY - 0.01)} Z`}
             className={`${ln} ${fill}`}
             fill={accent}
           />
         )}
         {b.spoiler === 'wing' && (
           <>
-            <path d={`M${X(-1.98)} ${Y(0.98)} L${X(-2.06)} ${Y(1.24)}`} className={ln} />
+            <path
+              d={`M${X(aeroX + 0.1)} ${Y(aeroY)} L${X(aeroX + 0.04)} ${Y(aeroY + 0.24)}`}
+              className={ln}
+            />
             <rect
-              x={X(-2.29)}
-              y={Y(1.29)}
+              x={X(aeroX - 0.19)}
+              y={Y(aeroY + 0.29)}
               width={38}
               height={5}
               rx={2}
@@ -238,21 +270,29 @@ export function BlueprintView() {
           </>
         )}
         <rect
-          x={X(2.36)}
-          y={Y(0.7)}
+          x={X(sp.front) - 9}
+          y={Y(geo.headY) - 3}
           width={7}
           height={6}
           rx={1}
           className={fill}
           fill={LAMP_TINTS[b.ltint].c}
         />
-        <rect x={X(-2.38)} y={Y(0.82)} width={6} height={5} rx={1} className={fill} fill="#e0202c" />
-        {[1.41, -1.45].map((wx) => {
+        <rect
+          x={X(sp.rear) + 1}
+          y={Y(sp.tailY) - 3}
+          width={6}
+          height={5}
+          rx={1}
+          className={fill}
+          fill="#e0202c"
+        />
+        {[sp.frontAxle, sp.rearAxle].map((wx) => {
           const cx = X(wx);
-          const cy = Y(0.37);
+          const cy = Y(T);
           return (
             <g key={wx}>
-              <circle cx={cx} cy={cy} r={0.37 * S} className={`${ln} ${fill}`} fill="#17181b" />
+              <circle cx={cx} cy={cy} r={T * S} className={`${ln} ${fill}`} fill="#17181b" />
               <circle cx={cx} cy={cy} r={R * S} className={`${ln} ${fill}`} fill={WHEEL_FINISHES[b.wfin].c} />
               {spokes(cx, cy)}
               <rect
@@ -268,44 +308,49 @@ export function BlueprintView() {
             </g>
           );
         })}
-        <DimH x1={X(-2.36)} x2={X(2.42)} y={Y(0) + 26} t="4,780" />
-        <DimH x1={X(-1.45)} x2={X(1.41)} y={Y(0) + 52} t="2,860 wheelbase" />
+        <DimH x1={X(sp.rear)} x2={X(sp.front)} y={Y(0) + 24} t={mm(geo.length)} />
+        <DimH
+          x1={X(sp.rearAxle)}
+          x2={X(sp.frontAxle)}
+          y={Y(0) + 48}
+          t={`${mm(sp.frontAxle - sp.rearAxle)} wheelbase`}
+        />
         <path
-          d={`M${X(-2.66)} ${Y(0)} V${Y(1.39)} M${X(-2.66) - 5} ${Y(0)} H${X(-2.66) + 5} M${X(-2.66) - 5} ${Y(1.39)} H${X(-2.66) + 5}`}
+          d={`M${dimX} ${Y(0)} V${Y(sp.roofY)} M${dimX - 5} ${Y(0)} H${dimX + 5} M${dimX - 5} ${Y(sp.roofY)} H${dimX + 5}`}
           className={styles.dim}
         />
         <text
-          x={X(-2.66) - 8}
-          y={Y(0.7)}
+          x={dimX - 8}
+          y={Y(sp.roofY / 2)}
           textAnchor="middle"
           className={styles.dt}
-          transform={`rotate(-90 ${X(-2.66) - 8} ${Y(0.7)})`}
+          transform={`rotate(-90 ${dimX - 8} ${Y(sp.roofY / 2)})`}
         >
-          1,400
+          {mm(sp.roofY)}
         </text>
 
-        <text x={X(-2.7)} y={TY(-0.99) - 22}>
+        <text x={X(-2.7)} y={TY(-sp.halfWidth) - 24}>
           Plan
         </text>
-        <path d={planD} className={`${ln} ${fill}`} fill={paint} />
+        <path d={curves.plan} className={`${ln} ${fill}`} fill={paint} />
         {top && <image href={top} x={0} y={TY(-1.05)} width={556} height={210} clipPath="url(#bpClipT)" />}
         {[1, -1].map((sd) => (
           <g key={sd}>
             <rect
-              x={X(0.42)}
-              y={sd > 0 ? TY(0.99) : TY(-1.17)}
+              x={X(mirX) - 4}
+              y={sd > 0 ? TY(geo.halfW(mirX)) - 2 : TY(-geo.halfW(mirX)) - 16}
               width={18}
               height={18}
               rx={4}
               className={`${ln} ${fill}`}
               fill={accent}
             />
-            {[1.41, -1.45].map((wx) => (
+            {[sp.frontAxle, sp.rearAxle].map((wx) => (
               <rect
                 key={wx}
-                x={X(wx - 0.37)}
-                y={sd > 0 ? TY(0.72) : TY(-0.97)}
-                width={74}
+                x={X(wx - T)}
+                y={sd > 0 ? TY(sp.track - 0.12) : TY(-sp.track - 0.13)}
+                width={T * 2 * S}
                 height={25}
                 rx={6}
                 className={`${ln} ${styles.dash}`}
@@ -314,10 +359,10 @@ export function BlueprintView() {
           </g>
         ))}
         <rect
-          x={X(-1.84)}
-          y={TY(-0.83)}
-          width={2.4 * S}
-          height={1.66 * S}
+          x={X(sp.cBase)}
+          y={TY(-glassHalf)}
+          width={(sp.aBase - sp.cBase) * S}
+          height={glassHalf * 2 * S}
           rx={22}
           className={`${ln} ${fill}`}
           fill="#0b0e12"
@@ -326,10 +371,10 @@ export function BlueprintView() {
         />
         {b.roof !== 'glass' && (
           <rect
-            x={X(rx0)}
-            y={TY(-0.78)}
-            width={(rx1 - rx0) * S}
-            height={1.56 * S}
+            x={X(roofX0)}
+            y={TY(-glassHalf * 0.92)}
+            width={(roofX1 - roofX0) * S}
+            height={glassHalf * 1.84 * S}
             rx={10}
             className={`${ln} ${fill}`}
             fill={roofC}
@@ -337,28 +382,28 @@ export function BlueprintView() {
         )}
         {b.spoiler === 'wing' && (
           <rect
-            x={X(-2.29)}
-            y={TY(-0.92)}
+            x={X(aeroX - 0.19)}
+            y={TY(-sp.halfWidth * 0.92)}
             width={36}
-            height={1.84 * S}
+            height={sp.halfWidth * 1.84 * S}
             rx={4}
             className={`${ln} ${fill}`}
             fill={accent}
           />
         )}
-        <path d={`M${X(-2.6)} ${TY(0)} H${X(2.6)}`} className={`${ln} ${styles.dash}`} />
+        <path d={`M${X(sp.rear) - 25} ${TY(0)} H${X(sp.front) + 18}`} className={`${ln} ${styles.dash}`} />
         <path
-          d={`M${X(2.64)} ${TY(-0.99)} V${TY(0.99)} M${X(2.64) - 5} ${TY(-0.99)} H${X(2.64) + 5} M${X(2.64) - 5} ${TY(0.99)} H${X(2.64) + 5}`}
+          d={`M${planDimX} ${TY(-sp.halfWidth)} V${TY(sp.halfWidth)} M${planDimX - 5} ${TY(-sp.halfWidth)} H${planDimX + 5} M${planDimX - 5} ${TY(sp.halfWidth)} H${planDimX + 5}`}
           className={styles.dim}
         />
         <text
-          x={X(2.64) + 16}
+          x={planDimX + 16}
           y={TY(0)}
           textAnchor="middle"
           className={styles.dt}
-          transform={`rotate(90 ${X(2.64) + 16} ${TY(0)})`}
+          transform={`rotate(90 ${planDimX + 16} ${TY(0)})`}
         >
-          1,980
+          {mm(sp.halfWidth * 2)}
         </text>
 
         <text x={640} y={-14}>
@@ -379,10 +424,10 @@ export function BlueprintView() {
             </g>
           );
         })}
-        <text x={640} y={452}>
+        <text x={640} y={472}>
           All dimensions in millimetres.
         </text>
-        <text x={640} y={470}>
+        <text x={640} y={490}>
           Drawn from the 3D model&apos;s own section curves.
         </text>
       </svg>

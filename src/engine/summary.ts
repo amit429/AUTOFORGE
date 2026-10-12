@@ -1,7 +1,7 @@
 import {
   ACCENTS,
   AMBIENT_MODES,
-  BASE_PRICE_USD,
+  BODY_TYPES,
   CALIPERS,
   FINISHES,
   GRILLES,
@@ -24,7 +24,7 @@ import {
   type Build,
 } from '@/data/options';
 import { optionLabel, paintHex, stitchHex } from './labels';
-import { paintUSD, spoilerUSD } from './pricing';
+import { baseUSD, paintUSD, spoilerUSD } from './pricing';
 
 export interface LineItem {
   label: string;
@@ -123,7 +123,13 @@ export function lineItems(b: Build): LineGroup[] {
           usd: null,
         },
         ...b.packs.map((k) => ({ label: PACKS[k].n, detail: 'Market pack', colour: null, usd: PACKS[k].p })),
-        { label: 'Base vehicle', detail: 'Halden Vesper GT', colour: null, usd: BASE_PRICE_USD, base: true },
+        {
+          label: 'Base vehicle',
+          detail: `Halden ${BODY_TYPES[b.body].n}`,
+          colour: null,
+          usd: baseUSD(b),
+          base: true,
+        },
       ],
     },
   ];

@@ -1,7 +1,7 @@
 import {
   ACCENTS,
   AMBIENT_MODES,
-  BASE_PRICE_USD,
+  BODY_TYPES,
   CALIPERS,
   CUSTOM_PAINT_USD,
   FINISHES,
@@ -52,7 +52,10 @@ export function optionsUSD(b: Build): number {
   return p;
 }
 
-export const totalUSD = (b: Build) => BASE_PRICE_USD + optionsUSD(b);
+/** Base price of the chosen body style. */
+export const baseUSD = (b: Build) => BODY_TYPES[b.body].p;
+
+export const totalUSD = (b: Build) => baseUSD(b) + optionsUSD(b);
 
 /** INR and JPY round to the nearest 1,000; everything else to the nearest 10. */
 export const roundingStep = (region: RegionId) => {

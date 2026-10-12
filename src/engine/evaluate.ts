@@ -1,5 +1,6 @@
 import {
   ACCENTS,
+  BODY_TYPES,
   AMBIENT_MODES,
   CALIPERS,
   FINISHES,
@@ -29,6 +30,7 @@ import { lineItems, type LineGroup } from './summary';
 
 /** Every discrete option value per key, as strings. */
 export const OPTION_VALUES: Partial<Record<OptionKey, string[]>> = {
+  body: Object.keys(BODY_TYPES),
   paint: [...Object.keys(PAINTS), 'custom'],
   finish: Object.keys(FINISHES),
   livery: Object.keys(LIVERIES),

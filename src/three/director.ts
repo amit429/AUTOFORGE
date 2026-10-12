@@ -5,14 +5,14 @@
  */
 import gsap from 'gsap';
 import * as THREE from 'three';
-import { STEPS } from '@/data/options';
+import { STEPS, type Build } from '@/data/options';
 import { on } from '@/lib/bus';
 import { dur, isMobile, prefersReducedMotion } from '@/lib/motion';
 import { effectiveTheme } from '@/lib/theme';
 import { isCabinStep, useBuild, type View } from '@/store/build';
 import { useUi, type Screen } from '@/store/ui';
-import { HOTSPOTS, PART_LABELS } from './anchors';
-import { CameraRig, POSES, type FrameName } from './camera';
+import { hotspotsFor, partLabelsFor, type Hotspot, type PartLabel } from './anchors';
+import { CameraRig, POSES, fitPose, type FrameName } from './camera';
 import { CarModel } from './car/CarModel';
 import { PAINT_DEMO, storyAt } from './story';
 import { LIGHTS, buildStudio, studioEnvironment, themeStudio, type Studio } from './studio';
@@ -37,7 +37,9 @@ const stepId = () => STEPS[useBuild.getState().step]?.id ?? 'paint';
 export class StageDirector {
   readonly rig = new CameraRig();
   readonly studio: Studio;
-  readonly car: CarModel;
+  car: CarModel;
+  private hotspots: Hotspot[] = [];
+  private labels: PartLabel[] = [];
   private env: THREE.Texture;
   private story = { p: 0, intro: 0, demoOn: false, demoI: 0, demoCall: null as gsap.core.Tween | null };
   private cleanups: (() => void)[] = [];
@@ -52,7 +54,8 @@ export class StageDirector {
     private overlays: OverlayElements,
   ) {
     this.studio = buildStudio(isMobile());
-    this.car = new CarModel(useBuild.getState().build, (lightsOn) => useUi.setState({ lightsOn }));
+    this.car = this.makeCar(useBuild.getState().build);
+    this.fitAnchors();
     this.env = studioEnvironment();
     scene.environment = this.env;
     scene.add(this.studio.group, this.car.root);
@@ -134,12 +137,15 @@ export class StageDirector {
         gsap.to(this.story, { intro: 1, duration: dur(2.6), ease: 'power3.out' });
     });
     const unBuild = useBuild.subscribe((s, p) => {
-      if (s.change.seq !== p.change.seq && s.change.keys.length)
-        this.car.sync(s.build, s.change.keys, s.change.animate && !prefersReducedMotion());
+      if (s.change.seq !== p.change.seq && s.change.keys.length) {
+        const animate = s.change.animate && !prefersReducedMotion();
+        if (s.build.body !== this.car.geo.spec.id) this.swapCar(s.build, animate);
+        else this.car.sync(s.build, s.change.keys, animate);
+      }
       if (useUi.getState().screen !== 'config') return;
       if (s.step !== p.step) {
         this.applyView(s.view, false);
-        this.rig.flyTo(POSES[STEPS[s.step]?.id ?? 'paint']);
+        this.rig.flyTo(this.pose(STEPS[s.step]?.id ?? 'paint'));
       } else if (s.view !== p.view) this.applyView(s.view, true);
     });
     this.cleanups.push(unUi, unBuild);
@@ -152,12 +158,62 @@ export class StageDirector {
       on('lights', (onOff) => (onOff ? car.welcome() : car.setLights(false))),
       on('spin', (turns) => void (!prefersReducedMotion() && this.rig.spin(turns))),
       on('resetCamera', () => {
-        const pose = useBuild.getState().view === 'exploded' ? POSES.exploded : POSES[stepId()];
+        const pose = useBuild.getState().view === 'exploded' ? this.pose('exploded') : this.pose(stepId());
         this.rig.flyTo(pose, 1.2);
       }),
       on('previewPaint', (pp) => car.previewPaint(pp.colour, pp.pattern, pp.patternColour, pp.duration)),
       on('restorePaint', () => car.restorePaint(true)),
     );
+  }
+
+  /* ------------------------------------------------------------- the car */
+
+  private makeCar(build: Build) {
+    return new CarModel(build, (lightsOn) => useUi.setState({ lightsOn }));
+  }
+
+  private fitAnchors() {
+    this.hotspots = hotspotsFor(this.car.geo);
+    this.labels = partLabelsFor(this.car.geo);
+  }
+
+  /** A step's camera pose fitted to the current body's size. */
+  private pose(id: keyof typeof POSES) {
+    return fitPose(POSES[id], this.car.geo);
+  }
+
+  /**
+   * Replaces the car with a new body style: the old one shrinks away and the new one grows in
+   * with an overshoot, keeping the view's explode and cutaway state.
+   */
+  private swapCar(build: Build, animate: boolean) {
+    const old = this.car;
+    const next = this.makeCar(build);
+    const view = useBuild.getState().view;
+    for (const p of next.parts) p.e = view === 'exploded' ? 1 : 0;
+    next.fx.cut = old.fx.cut;
+    const install = () => {
+      this.scene.remove(old.root);
+      gsap.killTweensOf([old.root.scale]);
+      old.dispose();
+      this.scene.add(next.root);
+      this.car = next;
+      this.fitAnchors();
+      if (old.lightsOn) next.setLights(true);
+    };
+    if (!animate) {
+      install();
+      return;
+    }
+    gsap
+      .timeline()
+      .to(old.root.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.35, ease: 'power2.in' })
+      .add(() => {
+        install();
+        next.root.scale.setScalar(0.001);
+      })
+      .to(next.root.scale, { x: 1, y: 1, z: 1, duration: 0.9, ease: 'back.out(1.5)' });
+    if (useUi.getState().screen === 'config') this.rig.flyTo(fitPose(POSES[stepId()], next.geo), 1.4);
   }
 
   /* ---------------------------------------------------------- direction */
@@ -209,9 +265,9 @@ export class StageDirector {
     if (!fly) return;
     const id = stepId();
     const cab = isCabinStep(useBuild.getState().step);
-    if (v === 'exploded') this.rig.flyTo(POSES.exploded, 1.6);
-    else if (v === 'cabin') this.rig.flyTo(cab ? POSES[id] : POSES.cabin);
-    else if (v === 'studio') this.rig.flyTo(cab ? POSES.paint : POSES[id]);
+    if (v === 'exploded') this.rig.flyTo(this.pose('exploded'), 1.6);
+    else if (v === 'cabin') this.rig.flyTo(cab ? this.pose(id) : this.pose('cabin'));
+    else if (v === 'studio') this.rig.flyTo(cab ? this.pose('paint') : this.pose(id));
   }
 
   private enter(to: Screen, from: Screen | null) {
@@ -238,13 +294,13 @@ export class StageDirector {
       car.restorePaint(false);
     }
     if (to === 'region') {
-      rig.flyTo(POSES.regionScreen, 1.6);
+      rig.flyTo(this.pose('regionScreen'), 1.6);
       rig.setFrame('region');
     }
     if (to === 'config') {
       car.restorePaint(true);
       rig.setFrame('config');
-      rig.flyTo(POSES[stepId()], 1.7);
+      rig.flyTo(this.pose(stepId()), 1.7);
       rig.idle = 0;
       const { view, step } = useBuild.getState();
       const v: View = isCabinStep(step) && view === 'studio' ? 'cabin' : view;
@@ -254,7 +310,7 @@ export class StageDirector {
     if (to === 'summary') {
       car.restorePaint(false);
       rig.setFrame('summary');
-      rig.flyTo(POSES.summary, 2);
+      rig.flyTo(this.pose('summary'), 2);
       if (!prefersReducedMotion()) {
         const { key, hemi } = this.studio;
         gsap.fromTo(
@@ -331,7 +387,7 @@ export class StageDirector {
     const show = screen === 'config' && view === 'studio' && car.fx.cut < 0.05;
     const cp = this.camera.position;
     const shellY = car.shell.position.y;
-    HOTSPOTS.forEach((h, i) => {
+    this.hotspots.forEach((h, i) => {
       const el = overlays.hotspots[i];
       if (!el) return;
       const w = this.w.set(h.p[0], h.p[1] + shellY, h.p[2]);
@@ -346,7 +402,7 @@ export class StageDirector {
     if (view !== 'exploded' || screen !== 'config') return;
     const c = this.project(this.centre, W, H);
     const mob = isMobile();
-    PART_LABELS.forEach((l, i) => {
+    this.labels.forEach((l, i) => {
       const el = overlays.labels[i];
       const ln = overlays.lines[i];
       const dot = overlays.dots[i];

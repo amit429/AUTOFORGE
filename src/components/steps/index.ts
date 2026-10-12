@@ -8,10 +8,12 @@ import { LiveryStep } from './LiveryStep';
 import { PaintStep } from './PaintStep';
 import { RegionStep } from './RegionStep';
 import { SeatsStep } from './SeatsStep';
+import { ShapeStep } from './ShapeStep';
 import { TrimStep } from './TrimStep';
 import { WheelsStep } from './WheelsStep';
 
 export const STEP_PANELS: Record<StepId, ComponentType> = {
+  shape: ShapeStep,
   paint: PaintStep,
   livery: LiveryStep,
   wheels: WheelsStep,

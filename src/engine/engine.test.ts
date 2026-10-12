@@ -138,6 +138,18 @@ describe('pricing', () => {
     expect(priceTag(0, 'eu')).toBe('Included');
     expect(priceTag(1000, 'us')).toBe('+$1,080');
   });
+  it('takes the base price from the body style', () => {
+    expect(totalUSD(build({ body: 'sedan' })) - totalUSD(build({ body: 'coupe' }))).toBe(78600 - 92400);
+    expect(totalUSD(build({ body: 'suv' }))).toBe(88900 + 9300);
+    const base = lineItems(build({ body: 'suv' }))
+      .flatMap((g) => g.items)
+      .find((i) => i.base);
+    expect(base).toMatchObject({ detail: 'Halden SUV', usd: 88900 });
+  });
+  it('rejects an unknown body style', () => {
+    expect(setOption(build(), 'body', 'tank' as Build['body']).ok).toBe(false);
+    expect(normalize({ body: 'tank' }).body).toBe('coupe');
+  });
   it('charges paint to sample at the custom price', () => {
     expect(optionsUSD(build({ paint: 'custom' })) - optionsUSD(DEFAULT_BUILD)).toBe(4900);
   });

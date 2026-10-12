@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DEFAULT_BUILD } from '@/data/options';
+import { DEFAULT_BUILD, STEPS } from '@/data/options';
 import { cloneBuild } from '@/engine';
 import { useBuild } from './build';
 import { useToasts } from './toasts';
@@ -62,9 +62,10 @@ describe('build store', () => {
   });
 
   it('switches to the cabin view for interior steps', () => {
-    s().goStep(6);
+    const at = (id: string) => STEPS.findIndex((x) => x.id === id);
+    s().goStep(at('seats'));
     expect(s().view).toBe('cabin');
-    s().goStep(2);
+    s().goStep(at('wheels'));
     expect(s().view).toBe('studio');
   });
 });

@@ -12,8 +12,20 @@ test.beforeEach(async ({ page }) => {
 test('region, build, locked option, undo, region change', async ({ page, isMobile }) => {
   await page.getByRole('radio', { name: /India/ }).click();
   await page.getByRole('button', { name: 'Enter the atelier' }).click();
-  await expect(page).toHaveURL(/\/build\/paint\?b=/);
+  await expect(page).toHaveURL(/\/build\/shape\?b=/);
   await expect(price(page)).toContainText('₹1,20,44,000');
+
+  // The body style sets the base price; switch to an SUV and back.
+  await panel(page).getByRole('radio', { name: /^SUV/ }).click();
+  await expect(price(page)).toContainText('₹1,16,30,000');
+  await panel(page)
+    .getByRole('radio', { name: /^Coupe/ })
+    .click();
+  await expect(price(page)).toContainText('₹1,20,44,000');
+  await panel(page)
+    .getByRole('button', { name: /^Next: Paint/ })
+    .click();
+  await expect(page).toHaveURL(/\/build\/paint/);
 
   // Pick a paint: price and history update.
   await panel(page)
@@ -49,6 +61,9 @@ test('region, build, locked option, undo, region change', async ({ page, isMobil
 test('region change mid-build swaps exclusives with a reason', async ({ page }) => {
   await page.getByRole('radio', { name: /India/ }).click();
   await page.getByRole('button', { name: 'Enter the atelier' }).click();
+  await panel(page)
+    .getByRole('button', { name: /^Next: Paint/ })
+    .click();
   await panel(page)
     .getByRole('radio', { name: /^Saffron Dusk/ })
     .click();
