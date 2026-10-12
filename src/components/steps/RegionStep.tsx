@@ -17,7 +17,7 @@ export function RegionStep() {
         {R.packs.map((k) => {
           const on = b.packs.includes(k);
           return (
-            <div key={k} className={s.row}>
+            <div key={k} className={s.row} data-on={on}>
               <div className={s.tx}>
                 <b>{PACKS[k].n}</b>
                 <small>{PACKS[k].d}</small>

@@ -174,13 +174,29 @@
 .pc:hover {
   transform: translateY(-2px);
   border-color: var(--line-2);
+  box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.35);
 }
 .cardRing {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  border: 1px solid var(--ink);
+  border: 1.5px solid var(--clay);
+  box-shadow: 0 0 0 3px var(--clay-soft);
   pointer-events: none;
+}
+.cardCheck {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--clay);
+  color: var(--panel-solid);
+}
+.pc.on em {
+  color: var(--ink);
 }
 .rxTag {
   position: absolute;
@@ -209,6 +225,16 @@
 }
 .row:last-child {
   border-bottom: 0;
+}
+/* A fitted mod, pack or feature: clay marker at the left and its price in ink. */
+.row[data-on='true'] {
+  box-shadow: inset 3px 0 0 var(--clay);
+  padding-left: 12px;
+  transition: padding 0.3s var(--e-out);
+}
+.row[data-on='true'] .pr {
+  color: var(--clay-ink);
+  font-weight: 500;
 }
 .tx {
   flex: 1;

@@ -21,7 +21,7 @@ function ModRows({ ids }: { ids: ModId[] }) {
         const m = MODS[id];
         const on = b.mods.includes(id);
         return (
-          <div key={id} className={s.row}>
+          <div key={id} className={s.row} data-on={on}>
             <div className={s.tx}>
               <b>{m.n}</b>
               <small>{m.d}</small>

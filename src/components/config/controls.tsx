@@ -12,6 +12,7 @@ import { KEY_NAMES } from '@/engine';
 import { spring } from '@/lib/motion';
 import { drawPattern, type PreviewMode } from '@/lib/patterns';
 import { useBuild } from '@/store/build';
+import { Icon } from '@/components/ui/Icon';
 import { choose, useEm } from './useEngine';
 import styles from './controls.module.css';
 
@@ -184,7 +185,11 @@ export function Cards<K extends OptionKey>({ k, items }: { k: K; items: CardItem
             {it.rg && <span className={styles.rxTag}>{REGIONS[it.rg].n}</span>}
             <span>{it.n}</span>
             <em>{it.sub}</em>
-            {on && <motion.span layoutId={`card-${k}`} className={styles.cardRing} transition={spring} />}
+            {on && (
+              <motion.span layoutId={`card-${k}`} className={styles.cardRing} transition={spring}>
+                <Icon name="check" className={styles.cardCheck} />
+              </motion.span>
+            )}
           </button>
         );
       })}

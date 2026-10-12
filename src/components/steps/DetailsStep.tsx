@@ -64,7 +64,7 @@ function ComfortRow({ id }: { id: ComfortId }) {
   const on = b.comfort.includes(id);
   const why = ev.available.comfort?.[id]?.reason;
   return (
-    <div className={s.row} ref={row} aria-disabled={why ? true : undefined}>
+    <div className={s.row} ref={row} data-on={on} aria-disabled={why ? true : undefined}>
       <div className={s.tx}>
         <b>{c.n}</b>
         <small>{why ?? c.d}</small>

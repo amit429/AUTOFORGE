@@ -1,7 +1,7 @@
 'use client';
 
 import { BODY_TYPES, keysOf } from '@/data/options';
-import { money } from '@/engine';
+import { money, paintHex } from '@/engine';
 import { Block, Cards, Note } from '@/components/config/controls';
 import { useBuild } from '@/store/build';
 import { BodySilhouette } from './BodySilhouette';
@@ -9,6 +9,7 @@ import { BodySilhouette } from './BodySilhouette';
 export function ShapeStep() {
   const body = useBuild((st) => st.build.body);
   const region = useBuild((st) => st.build.region);
+  const paint = useBuild((st) => paintHex(st.build));
   return (
     <>
       <Block title="Body style" em="body">
@@ -18,7 +19,7 @@ export function ShapeStep() {
             v: k,
             n: BODY_TYPES[k].n,
             sub: `From ${money(BODY_TYPES[k].p, region)}`,
-            icon: <BodySilhouette body={k} />,
+            icon: <BodySilhouette body={k} paint={paint} />,
           }))}
         />
       </Block>
