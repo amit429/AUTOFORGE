@@ -14,10 +14,10 @@ export function ThemeToggle() {
     sync();
     const mq = matchMedia('(prefers-color-scheme: dark)');
     mq.addEventListener('change', sync);
-    window.addEventListener('halden:theme', sync);
+    window.addEventListener('autoforge:theme', sync);
     return () => {
       mq.removeEventListener('change', sync);
-      window.removeEventListener('halden:theme', sync);
+      window.removeEventListener('autoforge:theme', sync);
     };
   }, []);
 

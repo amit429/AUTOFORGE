@@ -141,13 +141,13 @@ export function drawGraphic(
       break;
     }
     case 'script': {
-      ctx.font = `${Math.round(H * (rear ? 0.36 : 0.42))}px ${disp}`;
+      ctx.font = `${Math.round(H * (rear ? 0.27 : 0.32))}px ${disp}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.save();
       ctx.translate(W / 2, H / 2);
       if (!rear) ctx.transform(1, 0, -0.25, 1, 0, 0);
-      ctx.fillText('HALDEN', 0, 0);
+      ctx.fillText('AUTOFORGE', 0, 0);
       ctx.restore();
       break;
     }

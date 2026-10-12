@@ -14,7 +14,7 @@ import styles from './Landing.module.css';
 gsap.registerPlugin(ScrollTrigger);
 
 const HERO = 'Built panel by panel, by you.';
-const FINAL = 'Your Vesper GT starts here.';
+const FINAL = 'Your car starts here.';
 
 const Words = ({ text }: { text: string }) => (
   <>
@@ -42,22 +42,22 @@ interface Chapter {
 
 const CHAPTERS: Chapter[] = [
   {
-    step: 'Exterior',
-    title: 'Paint is only the first coat.',
-    body: 'Twenty-two paints across five finishes, plus paint to sample in any colour, from gloss to a colour-shifting chroma flip. Lay a livery over it, then keep going: roof, mirrors, aero, grille, wheels, calipers, lamps and glass are all yours to set.',
+    step: 'Shape and paint',
+    title: 'Start with any shape you like.',
+    body: 'Sedan, hatchback, coupe, convertible, SUV, cruiser, pickup, MPV, supercar: pick a body, then paint it in any colour and finish, from gloss to a colour-shifting chroma flip. Add a livery, door graphics or your own artwork on top.',
     facts: [
+      ['10', 'body styles'],
       ['22', 'paints'],
       ['10', 'liveries'],
-      ['5', 'finishes'],
     ],
     right: true,
   },
   {
     step: 'Component view',
     title: 'See how it comes apart.',
-    body: 'Every customisable part is its own piece of the model. Pull the car apart to understand what you are choosing, then tap any part to jump straight to it.',
+    body: 'Every customisable part is its own piece of the model, from wheels and aero to lift kits and roof racks. Pull the car apart to understand what you are choosing, then tap any part to jump straight to it.',
     facts: [
-      ['14', 'part groups'],
+      ['10', 'mods'],
       ['4', 'views'],
       ['1', 'live price'],
     ],
@@ -65,9 +65,9 @@ const CHAPTERS: Chapter[] = [
   {
     step: 'Interior',
     title: 'Sit inside before it exists.',
-    body: 'Lift the roof off and look in. Seat material, quilting, stitch colour, trim and ambient light all render live in the cabin, with the steering wheel on the side you drive.',
+    body: 'Lift the roof off and look in. Choose how many seats and how they are arranged, then their material, quilting and stitching, the trim, the headliner and the light, all live in the cabin.',
     facts: [
-      ['6', 'leathers'],
+      ['6', 'seat layouts'],
       ['5', 'quilts'],
       ['∞', 'light colours'],
     ],
@@ -198,7 +198,7 @@ export function Landing() {
               <Words text={HERO} />
             </h1>
             <p data-hero-rest>
-              The Halden Vesper GT, configured down to the stitch. Paint, livery, wheels, lamps, glass,
+              Pick one of ten body styles, then design it down to the stitch. Paint, graphics, wheels, mods,
               leather and light: each one chosen, seen in 3D and priced for where you live, as you go.
             </p>
             <div className={styles.cta} data-hero-rest>

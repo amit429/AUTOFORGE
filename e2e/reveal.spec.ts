@@ -13,7 +13,7 @@ const code = Buffer.from(
 test('the reveal tells the story of the build and ends on the specification', async ({ page }) => {
   await page.goto(`/reveal?b=${code}`);
   await expect(page.getByRole('heading', { name: 'Your SUV is ready.' })).toBeVisible();
-  await expect(page.getByLabel(/^Commission number HV-IN-\d{5}$/)).toBeVisible();
+  await expect(page.getByLabel(/^Design ID AF-IN-\d{5}$/)).toBeVisible();
 
   const scroller = page.getByRole('region', { name: 'Your build' });
   // Each chapter reports the user's own choices.

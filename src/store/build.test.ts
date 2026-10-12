@@ -37,7 +37,7 @@ describe('build store', () => {
   });
 
   it('treats a mood as one grouped history entry', () => {
-    s().snapshot({ paint: 'vesper', finish: 'gloss', wfin: 'black' }, 'Mood: Noir');
+    s().snapshot({ paint: 'onyx', finish: 'gloss', wfin: 'black' }, 'Mood: Noir');
     expect(s().history).toHaveLength(1);
     s().undo();
     expect(s().build).toEqual(DEFAULT_BUILD);
@@ -57,7 +57,7 @@ describe('build store', () => {
     s().set('paint', 'saffron');
     s().chooseRegion('eu');
     expect(s().build.region).toBe('eu');
-    expect(s().build.paint).toBe('vesper');
+    expect(s().build.paint).toBe('onyx');
     expect(s().change.keys).toEqual(['region', 'paint']);
   });
 

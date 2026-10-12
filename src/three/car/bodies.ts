@@ -1,6 +1,6 @@
 /**
  * Body specs per body style, in metres. Car faces +X, up is +Y, ground at y = 0.
- * The coupe keeps the original Vesper footprint (4.78 m long, 2.86 m wheelbase).
+ * The coupe keeps the prototype car's footprint (4.78 m long, 2.86 m wheelbase).
  */
 import type { BodyTypeId } from '@/data/options';
 import { BodyGeometry, type BodySpec } from './body';

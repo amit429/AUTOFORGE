@@ -37,13 +37,13 @@ export function decodeBuild(code: string | null | undefined): Build | null {
   }
 }
 
-/** Commission number, e.g. HV-IN-48213: FNV-1a over the canonical build. */
-export function commissionNumber(b: Build): string {
+/** Design ID, e.g. AF-IN-48213: FNV-1a over the canonical build. */
+export function designId(b: Build): string {
   const s = JSON.stringify(canonical(b));
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
   }
-  return `HV-${b.region.toUpperCase()}-${(Math.abs(h) % 90000) + 10000}`;
+  return `AF-${b.region.toUpperCase()}-${(Math.abs(h) % 90000) + 10000}`;
 }

@@ -1,8 +1,8 @@
-# Halden Atelier
+# AutoForge
 
-A part-by-part 3D configurator for the Halden Vesper GT, a car from a made-up coachbuilder. You pick a region, then customise paint, livery, wheels, bodywork, lights, glass, seats, trim, ambient light and regional packs. Every change animates on a live 3D car and is priced in local currency.
+Design the car you want, part by part. AutoForge is not a brand's configurator: you pick one of ten body styles (sedan, hatchback, coupe, convertible, compact SUV, SUV, cruiser, pickup, MPV, supercar), then shape the paint, graphics, wheels, mods, seats and light. Every change animates on a live 3D car and is priced in local currency. The finished design gets a design ID and a scroll-through reveal.
 
-The spec lives in `docs/` and `data/options.json`. The reference prototype is `reference/prototype.html` (see `HANDOFF.md` and `CLAUDE.md`).
+The original handoff spec lives in `docs/`, `data/options.json` and `reference/prototype.html` (see `HANDOFF.md` and `CLAUDE.md`). It was written for a single fictional model, "Halden Vesper GT"; the product has since been rebranded and generalised as AutoForge.
 
 ## Commands
 
@@ -23,8 +23,8 @@ pnpm lint && pnpm typecheck
 |---|---|
 | `/` | Loader, hero, six-chapter scroll story that drives the 3D camera |
 | `/region` | Region picker with globe, suggested from the time zone |
-| `/build/[step]?b=` | Configurator: 10 steps, 4 views, live price, history and undo |
-| `/reveal?b=` | Itemised spec, commission number, copyable build link |
+| `/build/[step]?b=` | Studio: 15 steps from body style to regional pack, 4 views, live price, history and undo |
+| `/reveal?b=` | Scroll-through reveal of the finished design, itemised spec, design ID, copyable link |
 | `/blueprint` | Design document (the 3D stage stops rendering here) |
 
 `?b=` carries the whole build, so links are shareable and resumable. Builds also autosave to localStorage.

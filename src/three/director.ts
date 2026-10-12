@@ -89,10 +89,10 @@ export class StageDirector {
     apply();
     const mq = matchMedia('(prefers-color-scheme: dark)');
     mq.addEventListener('change', apply);
-    window.addEventListener('halden:theme', apply);
+    window.addEventListener('autoforge:theme', apply);
     this.cleanups.push(() => {
       mq.removeEventListener('change', apply);
-      window.removeEventListener('halden:theme', apply);
+      window.removeEventListener('autoforge:theme', apply);
     });
   }
 

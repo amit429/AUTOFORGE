@@ -243,7 +243,7 @@ export const useBuild = create<BuildState>((set, get) => ({
 
 /* ----------------------------- persistence ----------------------------- */
 
-const STORAGE_KEY = 'halden-build-v1';
+const STORAGE_KEY = 'autoforge-build-v1';
 
 interface Saved {
   code: string;

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "model": "Halden Vesper GT (fictional)",
+    "model": "AutoForge custom build (fictional)",
     "basePriceUSD": 92400,
     "customPaintPriceUSD": 4900,
     "priceNote": "All prices in USD before conversion. The base price comes from the body style. Display price = usd * region.rate * region.tax, rounded (1000 for INR/JPY, 10 otherwise). Representative values only.",
@@ -147,13 +147,13 @@
     }
   },
   "paints": {
-    "vesper": {
-      "n": "Vesper Black",
+    "onyx": {
+      "n": "Onyx Black",
       "c": "#101114",
       "p": 0
     },
     "silver": {
-      "n": "Halden Silver",
+      "n": "Forge Silver",
       "c": "#b7bbc1",
       "p": 0
     },

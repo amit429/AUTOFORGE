@@ -117,7 +117,7 @@ export function RegionScreen() {
         </div>
         <div className={styles.go} data-go>
           <Button magnetic arrow cursor="Enter" onClick={enter}>
-            Enter the atelier
+            Start designing
           </Button>
           <small>Suggested from your device time zone.</small>
         </div>

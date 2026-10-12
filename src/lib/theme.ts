@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark';
 
-const KEY = 'halden-theme';
+const KEY = 'autoforge-theme';
 
 /** Inline script that applies a saved theme before first paint, so there is no flash. */
 export const themeBootScript = `try{var t=localStorage.getItem('${KEY}');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}`;
@@ -19,7 +19,7 @@ export function setTheme(next: Theme, animate: boolean) {
     } catch {
       // Storage can be unavailable (private mode); the theme still applies for this visit.
     }
-    window.dispatchEvent(new CustomEvent('halden:theme', { detail: next }));
+    window.dispatchEvent(new CustomEvent('autoforge:theme', { detail: next }));
   };
   if (animate && 'startViewTransition' in document) document.startViewTransition(apply);
   else apply();

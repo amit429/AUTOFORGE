@@ -5,7 +5,7 @@ import {
   applyRegion,
   applySnapshot,
   availability,
-  commissionNumber,
+  designId,
   decodeBuild,
   encodeBuild,
   evaluate,
@@ -144,7 +144,7 @@ describe('pricing', () => {
     const base = lineItems(build({ body: 'suv' }))
       .flatMap((g) => g.items)
       .find((i) => i.base);
-    expect(base).toMatchObject({ detail: 'Halden SUV', usd: 88900 });
+    expect(base).toMatchObject({ detail: 'SUV platform', usd: 88900 });
   });
   it('fits the seating layout to the body and explains why a layout is locked', () => {
     expect(availability('seating', 'seven', 'in', { body: 'coupe' })).toEqual({
@@ -271,13 +271,13 @@ describe('region change', () => {
       packs: ['monsoon'],
     });
     const r = applyRegion(b, 'eu');
-    expect(r.build.paint).toBe('vesper');
+    expect(r.build.paint).toBe('onyx');
     expect(r.build.livery).toBe('none');
     expect(r.build.trim).toBe('carbon');
     expect(r.build.vlt).toBe(70);
     expect(r.build.packs).toEqual([]);
     expect(r.swaps).toEqual([
-      'Saffron Dusk replaced with Vesper Black',
+      'Saffron Dusk replaced with Onyx Black',
       'Jaali lattice replaced with None',
       'Indian rosewood replaced with Forged carbon',
       'Glass lightened to 70% to meet local law',
@@ -313,14 +313,14 @@ describe('history', () => {
   it('undoes a grouped snapshot in one step', () => {
     const b = build();
     const snap = applySnapshot(b, {
-      paint: 'vesper',
+      paint: 'onyx',
       finish: 'gloss',
       caliper: 'graphite',
       seatCol: 'oxblood',
       region: 'eu',
     });
     expect(snap.build.region).toBe('in');
-    expect(snap.next).toEqual({ paint: 'vesper', finish: 'gloss', caliper: 'graphite', seatCol: 'oxblood' });
+    expect(snap.next).toEqual({ paint: 'onyx', finish: 'gloss', caliper: 'graphite', seatCol: 'oxblood' });
     const e = snapshotEntry('Mood: Noir', snap.prev, snap.next, snap.build);
     const back = undoEntry(snap.build, e);
     expect(back).toEqual(b);
@@ -347,7 +347,7 @@ describe('history', () => {
     if (!r2.ok || !r2.changed) throw new Error('expected change');
     const moved = applyRegion(r2.build, 'us').build;
     const back = undoEntry(moved, singleEntry('paint', r2.prev, r2.next, r2.build));
-    expect(back.paint).toBe('vesper');
+    expect(back.paint).toBe('onyx');
   });
 });
 
@@ -367,18 +367,18 @@ describe('serialisation', () => {
   it('repairs malformed or illegal values instead of failing', () => {
     const bad = btoa(JSON.stringify({ region: 'eu', paint: 'saffron', size: 99, vlt: 10, wheel: 'nope' }));
     const b = decodeBuild(bad);
-    expect(b?.paint).toBe('vesper');
+    expect(b?.paint).toBe('onyx');
     expect(b?.size).toBe(20);
     expect(b?.vlt).toBe(70);
     expect(b?.wheel).toBe(DEFAULT_BUILD.wheel);
     expect(decodeBuild('%%%')).toBeNull();
     expect(normalize(null)).toEqual(DEFAULT_BUILD);
   });
-  it('makes a stable commission number per build', () => {
-    const a = commissionNumber(DEFAULT_BUILD);
-    expect(a).toMatch(/^HV-IN-\d{5}$/);
-    expect(commissionNumber({ ...DEFAULT_BUILD })).toBe(a);
-    expect(commissionNumber(build({ paint: 'ultra' }))).not.toBe(a);
+  it('makes a stable design ID per build', () => {
+    const a = designId(DEFAULT_BUILD);
+    expect(a).toMatch(/^AF-IN-\d{5}$/);
+    expect(designId({ ...DEFAULT_BUILD })).toBe(a);
+    expect(designId(build({ paint: 'ultra' }))).not.toBe(a);
   });
   it('applyPatch ignores malformed values', () => {
     expect(applyPatch(DEFAULT_BUILD, { size: 23 as Build['size'] }).size).toBe(20);

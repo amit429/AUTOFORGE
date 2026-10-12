@@ -236,16 +236,17 @@ export function BlueprintDoc() {
         </nav>
         <div className={s.main}>
           <div className={s.hero}>
-            <h1 className="rv">The Halden Atelier blueprint</h1>
+            <h1 className="rv">The AutoForge blueprint</h1>
             <p className="rv">
-              How a brand site becomes a coachbuilder&apos;s workshop: a part-by-part car configurator with
-              live 3D, an exploded component view, a 2D tape-drawing view and region-aware rules. This is the
-              research, the reasoning and the system behind the configurator you can open from the Build tab.
+              How a car configurator becomes a design studio: pick any of ten body styles, then shape every
+              part with live 3D, an exploded component view, a 2D tape-drawing view and region-aware rules.
+              This is the research, the reasoning and the system behind the studio you can open from the Build
+              tab.
             </p>
             <div className={`${s.meta} rv`}>
               {[
-                ['Product', 'Bespoke car configurator'],
-                ['Model', 'Halden Vesper GT (fictional)'],
+                ['Product', 'Design-your-own car studio'],
+                ['Cars', 'Ten body styles, built in code'],
                 ['Platforms', 'Web, desktop first, full mobile'],
                 ['Status', 'Interactive build'],
               ].map(([b, v]) => (
@@ -260,7 +261,7 @@ export function BlueprintDoc() {
           <Chapter
             n={1}
             title="The idea"
-            lede="Most configurators let you pick a trim, a paint and some wheels. Halden lets you specify the car the way a coachbuilder would: every visible part, inside and out, one at a time."
+            lede="Most configurators let you pick a trim, a paint and some wheels on one brand's cars. AutoForge lets you design a car the way a custom builder would: choose the shape, then every visible part, inside and out, one at a time."
           >
             <Tiles
               cols={3}
@@ -275,7 +276,7 @@ export function BlueprintDoc() {
                 ],
                 [
                   'The job of the site',
-                  'Turn curiosity into a confident, shareable specification that a client advisor can turn into an order with no surprises, while making the process itself feel like the first part of owning the car.',
+                  'Turn curiosity into a confident, shareable design you can save, compare and hand to a builder with no surprises, while making the process itself feel like creating something of your own.',
                 ],
               ]}
             />
@@ -288,7 +289,7 @@ export function BlueprintDoc() {
           >
             <h3 className="rv">What current configurators do well, and where they stop</h3>
             <Table
-              head={['Pattern observed', 'Why it works or fails', 'What Halden does']}
+              head={['Pattern observed', 'Why it works or fails', 'What AutoForge does']}
               rows={[
                 [
                   'Step-by-step trim, paint, wheels, interior',
@@ -335,15 +336,15 @@ export function BlueprintDoc() {
                 [
                   'LE',
                   'Lena, Munich',
-                  'Enthusiast, second Halden',
+                  'Enthusiast, modifies her own cars',
                   'Knows exactly what she wants and wants every detail: caliper colour, stitch colour, aero. Uses a large screen, saves several builds and compares them.',
                   'Let me change one thing and see only that thing change.',
                 ],
                 [
                   'KH',
                   'Khalid, Dubai',
-                  'Bespoke buyer, works with an advisor',
-                  'Wants something nobody else has. Starts the build himself, then hands it to a client advisor. Values exclusivity, heat performance and a clear commission record.',
+                  'Custom-build client',
+                  'Wants something nobody else has. Designs the car himself, then hands it to a custom builder. Values exclusivity, heat performance and a clear design record.',
                   'If it’s exclusive to my region, tell me. That’s the point.',
                 ],
               ].map(([av, n, sub, p, q]) => (
@@ -385,7 +386,7 @@ export function BlueprintDoc() {
                 ],
                 [
                   'The ending is a ceremony',
-                  'The summary is the moment of commitment. Treat it as a reveal with a commission number, not a receipt.',
+                  'The summary is the moment of commitment. Treat it as a reveal of the finished car with a design ID, not a receipt.',
                 ],
               ]}
             />
@@ -455,8 +456,8 @@ export function BlueprintDoc() {
                   'Builds autosave locally. A returning user lands on their last step with their build intact; a shared link opens the exact same build.',
                 ],
                 [
-                  'Advisor handoff',
-                  'The build code opens the same configuration in an advisor console with notes and region-specific lead times attached.',
+                  'Builder handoff',
+                  'The build code opens the same design in a builder console with notes and region-specific lead times attached.',
                 ],
               ]}
             />
@@ -540,7 +541,7 @@ export function BlueprintDoc() {
           <Chapter
             n={6}
             title="Configuration engine"
-            lede="The UI never decides what is valid. A rules engine evaluates the build on every change and returns availability, price and reasons. The front end only renders that result, which keeps web, advisor console and dealer tools consistent."
+            lede="The UI never decides what is valid. A rules engine evaluates the build on every change and returns availability, price and reasons. The front end only renders that result, which keeps the web studio, builder tools and partner workshops consistent."
           >
             <Tiles
               items={[
@@ -724,7 +725,7 @@ export function BlueprintDoc() {
               <div className={s.typeRow}>
                 <small>Display, Michroma</small>
                 <div className="d" style={{ fontSize: 44, lineHeight: 1.05, letterSpacing: '-.035em' }}>
-                  Vesper GT
+                  AutoForge
                 </div>
               </div>
               <div className={s.typeRow}>
@@ -925,7 +926,7 @@ export function BlueprintDoc() {
                 ['55%', 'of starters reach the reveal'],
                 ['<20 s', 'to first change'],
                 ['30%', 'of reveals shared or saved'],
-                ['3×', 'advisor bookings vs. current site'],
+                ['3×', 'return visits to saved designs'],
               ].map(([b, l]) => (
                 <div key={l}>
                   <b>{b}</b>
@@ -946,7 +947,10 @@ export function BlueprintDoc() {
                   'Region, exterior steps, studio and exploded views, live price, share code.',
                 ],
                 ['Phase 2 · Cabin', 'Interior steps, cabin view, blueprint view, saved builds and compare.'],
-                ['Phase 3 · Advisor', 'Advisor console, commission records, reservations with deposit.'],
+                [
+                  'Phase 3 · Builders',
+                  'Partner workshops, build quotes from a design ID, reservations with deposit.',
+                ],
                 [
                   'Phase 4 · Beyond',
                   'AR placement in your driveway, shared live builds with family, pixel-streamed photoreal mode.',
@@ -964,7 +968,7 @@ export function BlueprintDoc() {
                 Start your build
               </Button>
               <Button magnetic variant="ghost" onClick={() => go('landing')}>
-                Back to the atelier
+                Back to home
               </Button>
             </div>
           </Chapter>
@@ -1055,8 +1059,8 @@ function FlowDiagram() {
       {node(20, 30, 150, 64, 'Land', 'scroll story, 3D intro')}
       {node(200, 30, 150, 64, 'Choose region', 'suggested from device')}
       {node(400, 30, 200, 64, 'Configure', 'ten steps, live price, undo', true)}
-      {node(660, 30, 150, 64, 'Reveal', 'commission number')}
-      {node(840, 30, 150, 64, 'Next steps', 'share, advisor, reserve')}
+      {node(660, 30, 150, 64, 'Reveal', 'design ID')}
+      {node(840, 30, 150, 64, 'Next steps', 'share, save, quote')}
       {node(250, 190, 115, 56, 'Studio')}
       {node(380, 190, 115, 56, 'Exploded')}
       {node(510, 190, 115, 56, 'Blueprint')}

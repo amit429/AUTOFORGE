@@ -13,7 +13,7 @@ export function useEvaluation() {
   return useMemo(() => evaluate(build), [build]);
 }
 
-/** "Halden Silver Included": the current choice and its price for a block header. */
+/** "Forge Silver Included": the current choice and its price for a block header. */
 export function useEm(key: OptionKey) {
   const build = useBuild((s) => s.build);
   const { name, usd } = optionLabel(key, build);

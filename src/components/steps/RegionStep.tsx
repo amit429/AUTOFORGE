@@ -38,7 +38,7 @@ export function RegionStep() {
         <Fact label="Side glass" value={`At least ${R.vlt}% light`} />
         <Fact
           label="Delivery"
-          sub={`Hand-finished at the atelier, delivered to ${R.city}`}
+          sub={`Built to order and delivered to ${R.city}`}
           value={`About ${R.weeks} weeks`}
         />
         <Button variant="ghost" className={s.wide} style={{ marginTop: 14 }} onClick={() => go('region')}>

@@ -15,7 +15,7 @@ interface UploadState {
   set: (place: ArtPlace, dataUrl: string | null) => void;
 }
 
-const KEY = 'halden-artwork-v1';
+const KEY = 'autoforge-artwork-v1';
 const MAX = 768;
 
 function load(): Pick<UploadState, 'door' | 'rear'> {

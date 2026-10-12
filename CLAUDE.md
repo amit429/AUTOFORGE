@@ -1,6 +1,8 @@
-# Halden Atelier — project memory for Claude Code
+# AutoForge — project memory for Claude Code
 
-A part-by-part car configurator for an invented coachbuilder, **Halden Coachworks**, and its model the **Vesper GT**. Users pick a region, then customise paint, livery, wheels, bodywork, lights, glass, seats, trim, ambient light and regional packs, seeing every change live in 3D with a local-currency price. Motion quality is a core requirement, not polish.
+**AutoForge** is a design-your-own-car studio, not a brand or single-model site. Users pick a region and one of ten body styles, then customise paint, livery, graphics, wheels, bodywork, mods, lights, glass, seating layout, seats, trim, cabin details, ambient light and regional packs, seeing every change live in 3D with a local-currency price. Motion quality is a core requirement, not polish.
+
+The docs in `docs/` and the prototype were written for an earlier single-model brief ("Halden Vesper GT"). Their behaviour, design system and architecture still apply; the branding does not. Never reintroduce brand or model names.
 
 A complete working prototype exists: `reference/prototype.html` (single file, three.js r128 + GSAP). **It is the behavioural source of truth.** When unsure how something should look, move or behave, open it in a browser and read its code before inventing.
 

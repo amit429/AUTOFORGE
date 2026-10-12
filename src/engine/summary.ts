@@ -181,7 +181,7 @@ export function lineItems(b: Build): LineGroup[] {
         ...b.packs.map((k) => ({ label: PACKS[k].n, detail: 'Market pack', colour: null, usd: PACKS[k].p })),
         {
           label: 'Base vehicle',
-          detail: `Halden ${BODY_TYPES[b.body].n}`,
+          detail: `${BODY_TYPES[b.body].n} platform`,
           colour: null,
           usd: baseUSD(b),
           base: true,

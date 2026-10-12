@@ -155,9 +155,7 @@ export function ColourRing({ kind }: { kind: 'custom' | 'amb' }) {
             >
               Use this colour
             </Button>
-            <small className="muted">
-              {priceTag(CUSTOM_PAINT_USD, region)}, matched by hand at the atelier
-            </small>
+            <small className="muted">{priceTag(CUSTOM_PAINT_USD, region)}, mixed to your sample</small>
           </>
         )}
       </div>

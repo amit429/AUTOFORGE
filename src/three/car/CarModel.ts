@@ -1,5 +1,5 @@
 /**
- * The placeholder Vesper GT, ported from reference/prototype.html. Every customisable part is a
+ * The car, built from the body style's spec (see body.ts and bodies.ts), first ported from reference/prototype.html. Every customisable part is a
  * named node following the model contract in docs/3D_PIPELINE.md, so a real glTF can replace
  * this class behind the same interface without touching UI code.
  *
@@ -676,7 +676,7 @@ export class CarModel {
     x.textAlign = 'left';
     x.fillStyle = '#e8ecf4';
     x.font = `18px ${disp}`;
-    x.fillText('HALDEN', 280, 200);
+    x.fillText('AUTOFORGE', 280, 200);
     this.screenTex.needsUpdate = true;
   }
 

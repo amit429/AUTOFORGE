@@ -34,7 +34,7 @@ import {
 import {
   BUILD_KEYS,
   chipColour,
-  commissionNumber,
+  designId,
   encodeBuild,
   money,
   optionLabel,
@@ -175,7 +175,7 @@ export function RevealScreen() {
   const ev = useEvaluation();
   const R = REGIONS[build.region];
   const body = BODY_TYPES[build.body];
-  const code = commissionNumber(build);
+  const code = designId(build);
   const codeEls = useRef<(HTMLElement | null)[]>([]);
   const root = useRef<HTMLElement>(null);
   const { exterior, kit, cabin } = chapters(build);
@@ -184,7 +184,7 @@ export function RevealScreen() {
     if (hydrated && !regionChosen) go('region');
   }, [hydrated, regionChosen, go]);
 
-  // The commission number decodes in, once per change of build.
+  // The design ID decodes in, once per change of build.
   useEffect(() => {
     const els = codeEls.current.filter(Boolean) as HTMLElement[];
     if (prefersReducedMotion()) {
@@ -268,7 +268,7 @@ export function RevealScreen() {
       await navigator.clipboard.writeText(`${code} ${location.origin}/build/shape?b=${encodeBuild(build)}`);
       toast('Build code copied.');
     } catch {
-      toast(`This browser blocked copying. Your commission number is ${code}.`, 'warn');
+      toast(`This browser blocked copying. Your design ID is ${code}.`, 'warn');
     }
   };
 
@@ -281,16 +281,16 @@ export function RevealScreen() {
             <div className={styles.k}>Built for {R.n}</div>
             <h1>Your {inSentence(body.n)} is ready.</h1>
             <p>
-              Hand-finished at the Halden atelier and delivered to {R.city} in about {R.weeks} weeks. Scroll
-              to see every part you chose.
+              Built to order and delivered to {R.city} in about {R.weeks} weeks. Scroll to see every part you
+              chose.
             </p>
             <div className={styles.heroFacts}>
               <div>
-                <small>Commission number</small>
+                <small>Design ID</small>
                 <b
                   className="d"
                   ref={(el) => void (codeEls.current[0] = el)}
-                  aria-label={`Commission number ${code}`}
+                  aria-label={`Design ID ${code}`}
                 >
                   {code}
                 </b>
@@ -370,13 +370,13 @@ export function RevealScreen() {
         <div className={`${styles.chap} ${styles.final}`}>
           <article className={`${styles.card} ${styles.spec}`} data-card>
             <div className={styles.stp} data-kid>
-              Your Halden {body.n}
+              Your {body.n}, specified
             </div>
             <div className={styles.code} data-kid>
               <b className="d" ref={(el) => void (codeEls.current[1] = el)}>
                 {code}
               </b>
-              <small>Commission number</small>
+              <small>Design ID</small>
             </div>
             <div className={styles.list} tabIndex={0} role="region" aria-label="Specification">
               {ev.lineItems.map((g) => (

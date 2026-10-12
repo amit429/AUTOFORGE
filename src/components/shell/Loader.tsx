@@ -71,15 +71,15 @@ export function Loader() {
 
   if (done) return null;
   return (
-    <div ref={root} className={styles.loader} aria-live="polite" aria-label="Loading the atelier">
+    <div ref={root} className={styles.loader} aria-live="polite" aria-label="Loading AutoForge">
       <div className={styles.half} data-top style={{ top: 0 }} />
       <div className={styles.half} data-bottom style={{ bottom: 0 }} />
       <div className={styles.inner} data-in>
         <svg viewBox="0 0 120 60" aria-hidden="true">
-          <path d="M8 52 C 30 51, 34 22, 60 20 S 98 34, 112 50" />
-          <path d="M30 52 V 30 M90 52 V 30 M30 40 H 90" />
+          <path d="M14 54 L44 6 L74 54 M27 34 H61" />
+          <path d="M70 20 H108 M76 36 H104" />
         </svg>
-        <div className={styles.word}>HALDEN</div>
+        <div className={styles.word}>AUTOFORGE</div>
         <div className={styles.bar}>
           <i data-bar />
         </div>

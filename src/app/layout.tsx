@@ -19,9 +19,9 @@ const instrument = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Halden Atelier: build your Vesper GT',
+  title: 'AutoForge: design your own car',
   description:
-    'Configure the Halden Vesper GT part by part: paint, livery, wheels, lamps, glass, leather and light, seen live in 3D and priced for where you live.',
+    'Design the car you want, part by part: pick one of ten body styles, then shape the paint, graphics, wheels, mods, seats and light, seen live in 3D and priced for where you live.',
 };
 
 export const viewport: Viewport = {

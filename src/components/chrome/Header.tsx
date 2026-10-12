@@ -11,7 +11,7 @@ import { ThemeToggle } from './ThemeToggle';
 import styles from './Header.module.css';
 
 const NAV: { to: Screen; label: string }[] = [
-  { to: 'landing', label: 'Atelier' },
+  { to: 'landing', label: 'Home' },
   { to: 'config', label: 'Build' },
   { to: 'doc', label: 'Blueprint' },
 ];
@@ -28,12 +28,12 @@ export function Header() {
 
   return (
     <header className={styles.top} data-header>
-      <button className={styles.brand} aria-label="Halden home" onClick={() => go('landing')}>
+      <button className={styles.brand} aria-label="AutoForge home" onClick={() => go('landing')}>
         <svg viewBox="0 0 34 22" aria-hidden="true">
-          <path d="M2 20 C 9 19.6, 10 7, 17 6.4 S 28 12, 32 19" />
-          <path d="M9 20v-8M25 20v-8M9 15h16" />
+          <path d="M3 20 L13 3 L23 20 M7.5 13 H18.5" />
+          <path d="M22 9 H32 M24 14.5 H31" />
         </svg>
-        <span className={styles.word}>HALDEN</span>
+        <span className={styles.word}>AUTOFORGE</span>
       </button>
       <nav className={styles.nav} aria-label="Sections">
         {NAV.map((n) => (

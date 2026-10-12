@@ -14,7 +14,7 @@ export const MOODS: Mood[] = [
     d: 'Black on black, red calipers',
     swatches: ['#101114', '#141518', '#c2272d'],
     patch: {
-      paint: 'vesper',
+      paint: 'onyx',
       finish: 'gloss',
       livery: 'none',
       wfin: 'black',

@@ -51,7 +51,7 @@ export const RANGES = {
   ambBri: { min: 0.15, max: 1, step: 0.01 },
 } as const;
 
-/** Keys in canonical order; serialisation and commission numbers depend on it. */
+/** Keys in canonical order; serialisation and design IDs depend on it. */
 export const BUILD_KEYS = Object.keys(DEFAULT_BUILD) as OptionKey[];
 
 export const cloneBuild = (b: Build): Build => ({

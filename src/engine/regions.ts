@@ -24,7 +24,7 @@ export function guessRegion(timeZone?: string): RegionId {
 
 export interface RegionChange {
   build: Build;
-  /** Human-readable substitutions, e.g. "Saffron Dusk replaced with Vesper Black". */
+  /** Human-readable substitutions, e.g. "Saffron Dusk replaced with Onyx Black". */
   swaps: string[];
   /** Keys whose value was replaced, so 3D can transition just those parts. */
   swappedKeys: OptionKey[];
@@ -33,7 +33,7 @@ export interface RegionChange {
 
 /** Fallbacks used when a choice stops being orderable in the new region. */
 const FALLBACKS = [
-  ['paint', 'vesper'],
+  ['paint', 'onyx'],
   ['livery', 'none'],
   ['trim', 'carbon'],
   ['seatMat', 'nappa'],
