@@ -1,0 +1,113 @@
+'use client';
+
+import { Canvas } from '@react-three/fiber';
+import gsap from 'gsap';
+import { STEPS } from '@/data/options';
+import { dur } from '@/lib/motion';
+import { useBuild } from '@/store/build';
+import { useUi } from '@/store/ui';
+import { HOTSPOTS, PART_LABELS } from '@/three/anchors';
+import { BlueprintView } from './BlueprintView';
+import { orbitAllowed, type OverlayElements } from '@/three/director';
+import { Scene } from './Scene';
+import styles from './Stage.module.css';
+
+const stepIndex = (id: string) => STEPS.findIndex((s) => s.id === id);
+
+/** DOM nodes the director positions every frame. The stage is mounted once, so one registry. */
+const overlays: OverlayElements = {
+  hotspots: [],
+  labels: [],
+  lines: [],
+  dots: [],
+  setLabelsOn(on) {
+    PART_LABELS.forEach((_, i) => {
+      const el = overlays.labels[i];
+      const ln = overlays.lines[i];
+      const dot = overlays.dots[i];
+      if (!el || !ln || !dot) return;
+      gsap.killTweensOf([el, ln, dot]);
+      el.style.pointerEvents = on ? 'auto' : 'none';
+      el.tabIndex = on ? 0 : -1;
+      if (on) {
+        gsap.to([ln, dot], { opacity: 1, duration: dur(0.4), delay: i * dur(0.05) });
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: dur(0.5), delay: 0.1 + i * dur(0.05), ease: 'expo.out' },
+        );
+      } else gsap.to([el, ln, dot], { opacity: 0, duration: dur(0.2) });
+    });
+  },
+};
+
+/** The 3D studio shared by every screen. It stays mounted across routes and pauses on /blueprint. */
+export function Stage() {
+  const screen = useUi((s) => s.screen);
+  const view = useBuild((s) => s.view);
+  const orbit = orbitAllowed(screen, view);
+
+  return (
+    <div
+      className={`${styles.stage} ${orbit ? styles.grab : ''}`}
+      role="img"
+      aria-label="3D view of your car. Drag to rotate, scroll to zoom."
+      data-cursor={orbit ? 'Drag' : undefined}
+      style={{ visibility: screen === 'doc' ? 'hidden' : 'visible' }}
+    >
+      <Canvas
+        className={styles.gl}
+        frameloop={screen === 'doc' ? 'never' : 'always'}
+        dpr={[1, 2]}
+        shadows="percentage"
+        camera={{ fov: 30, near: 0.1, far: 120, position: [0, 3, 18] }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      >
+        <Scene overlays={overlays} />
+      </Canvas>
+      <svg className={styles.leaders} aria-hidden="true">
+        {PART_LABELS.map((l, i) => (
+          <g key={l.title}>
+            <line ref={(el) => void (overlays.lines[i] = el)} style={{ opacity: 0 }} />
+            <circle ref={(el) => void (overlays.dots[i] = el)} r={3} style={{ opacity: 0 }} />
+          </g>
+        ))}
+      </svg>
+      <div className={styles.labels}>
+        {PART_LABELS.map((l, i) => (
+          <button
+            key={l.title}
+            ref={(el) => void (overlays.labels[i] = el)}
+            className={styles.lbl}
+            style={{ opacity: 0, pointerEvents: 'none' }}
+            tabIndex={-1}
+            onClick={() => {
+              useBuild.getState().setView('studio');
+              useBuild.getState().goStep(stepIndex(l.step));
+            }}
+          >
+            <span className={styles.card}>
+              <b>{l.title}</b>
+              <small>{l.sub}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className={styles.hotspots}>
+        {HOTSPOTS.map((h, i) => (
+          <button
+            key={h.label}
+            ref={(el) => void (overlays.hotspots[i] = el)}
+            className={styles.hs}
+            aria-label={h.label}
+            tabIndex={-1}
+            onClick={() => useBuild.getState().goStep(stepIndex(h.step))}
+          >
+            <span>{h.label}</span>
+          </button>
+        ))}
+      </div>
+      <BlueprintView />
+    </div>
+  );
+}

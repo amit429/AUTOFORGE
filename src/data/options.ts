@@ -24,7 +24,17 @@ export type StitchId = keyof typeof raw.stitching;
 export type TrimId = keyof typeof raw.trims;
 export type AmbientModeId = keyof typeof raw.ambientModes;
 export type PackId = keyof typeof raw.packs;
-export type StepId = (typeof raw.steps)[number]['id'];
+export type StepId =
+  | 'paint'
+  | 'livery'
+  | 'wheels'
+  | 'body'
+  | 'lights'
+  | 'glass'
+  | 'seats'
+  | 'trim'
+  | 'ambient'
+  | 'region';
 
 /** Paint selection: a catalogue paint or a hand-matched sample. */
 export type PaintChoice = PaintId | 'custom';

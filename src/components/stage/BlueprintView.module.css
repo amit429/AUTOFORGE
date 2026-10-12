@@ -1,0 +1,75 @@
+.bp {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 90px 440px 120px 250px;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    24px 24px,
+    24px 24px;
+  background-position: -1px -1px;
+}
+.bp svg {
+  width: 100%;
+  height: 100%;
+  max-height: 78vh;
+  overflow: visible;
+}
+.ln {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.ln:not(.fill) {
+  fill: none;
+}
+.thin {
+  stroke-width: 0.9;
+  stroke: var(--ink-2);
+}
+.dash {
+  stroke-dasharray: 5 5;
+  stroke: var(--ink-3);
+}
+.dim {
+  stroke: var(--datum);
+  stroke-width: 1;
+  fill: none;
+}
+.bp text {
+  font-family: var(--font-d);
+  font-size: 11px;
+  fill: var(--ink-2);
+}
+.bp text.dt {
+  fill: var(--datum);
+  font-size: 10.5px;
+}
+.bp text.ct {
+  font-family: var(--font-b);
+  font-size: 13px;
+  fill: var(--ink);
+}
+.fill {
+  transition: fill 0.7s var(--e-out);
+}
+
+@media (max-width: 1180px) {
+  .bp {
+    padding: 90px 430px 120px 210px;
+  }
+}
+@media (max-width: 900px) {
+  .bp {
+    padding: 120px 10px 50vh;
+  }
+}
