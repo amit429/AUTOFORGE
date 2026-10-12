@@ -1,0 +1,4 @@
+reference/
+data/
+.next/
+pnpm-lock.yaml

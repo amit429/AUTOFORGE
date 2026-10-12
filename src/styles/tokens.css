@@ -1,0 +1,76 @@
+/* Design tokens: docs/DESIGN_SYSTEM.md. Day is the default; night follows the OS unless
+   data-theme on <html> overrides it. */
+:root {
+  --bg: #d8dbde;
+  --bg-2: #f0f1f2;
+  --ink: #14171c;
+  --ink-2: #535a64;
+  --ink-3: #7c838d;
+  --line: rgba(20, 23, 28, 0.13);
+  --line-2: rgba(20, 23, 28, 0.26);
+  --panel: rgba(240, 241, 242, 0.78);
+  --panel-solid: #eceeef;
+  --chip: rgba(20, 23, 28, 0.06);
+  --clay: #9e7038;
+  --clay-soft: rgba(158, 112, 56, 0.16);
+  --datum: #2c4bdb;
+  --warn: #b4441c;
+  --ok: #2e7d5b;
+  --shadow: 0 34px 70px -34px rgba(20, 23, 28, 0.42);
+
+  --font-d: var(--font-michroma), 'Eurostile', 'Arial Black', sans-serif;
+  --font-b: var(--font-instrument), 'Helvetica Neue', Arial, sans-serif;
+
+  --r-s: 4px;
+  --r-m: 10px;
+  --r-l: 22px;
+  --r-pill: 999px;
+
+  --e-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --e-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-quick: 0.24s;
+  --t-base: 0.42s;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #161a20;
+    --bg-2: #232933;
+    --ink: #e5e7ea;
+    --ink-2: #a3aab4;
+    --ink-3: #6d7581;
+    --line: rgba(229, 231, 234, 0.11);
+    --line-2: rgba(229, 231, 234, 0.24);
+    --panel: rgba(25, 29, 36, 0.76);
+    --panel-solid: #1c2128;
+    --chip: rgba(229, 231, 234, 0.07);
+    --clay: #d3ab70;
+    --clay-soft: rgba(211, 171, 112, 0.16);
+    --datum: #8399ff;
+    --warn: #f07a4e;
+    --ok: #5bc197;
+    --shadow: 0 34px 70px -30px rgba(0, 0, 0, 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #161a20;
+  --bg-2: #232933;
+  --ink: #e5e7ea;
+  --ink-2: #a3aab4;
+  --ink-3: #6d7581;
+  --line: rgba(229, 231, 234, 0.11);
+  --line-2: rgba(229, 231, 234, 0.24);
+  --panel: rgba(25, 29, 36, 0.76);
+  --panel-solid: #1c2128;
+  --chip: rgba(229, 231, 234, 0.07);
+  --clay: #d3ab70;
+  --clay-soft: rgba(211, 171, 112, 0.16);
+  --datum: #8399ff;
+  --warn: #f07a4e;
+  --ok: #5bc197;
+  --shadow: 0 34px 70px -30px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
