@@ -1,0 +1,1006 @@
+{
+  "meta": {
+    "model": "Halden Vesper GT (fictional)",
+    "basePriceUSD": 92400,
+    "customPaintPriceUSD": 4900,
+    "priceNote": "All prices in USD before conversion. Display price = usd * region.rate * region.tax, rounded (1000 for INR/JPY, 10 otherwise). Representative values only."
+  },
+  "paints": {
+    "vesper": {
+      "n": "Vesper Black",
+      "c": "#101114",
+      "p": 0
+    },
+    "silver": {
+      "n": "Halden Silver",
+      "c": "#b7bbc1",
+      "p": 0
+    },
+    "glacier": {
+      "n": "Glacier White",
+      "c": "#e6e8eb",
+      "p": 0
+    },
+    "clay": {
+      "n": "Clay Model",
+      "c": "#a8835a",
+      "p": 1800
+    },
+    "ultra": {
+      "n": "Ultramarine",
+      "c": "#22339f",
+      "p": 1400
+    },
+    "oxblood": {
+      "n": "Oxblood",
+      "c": "#5e1220",
+      "p": 1400
+    },
+    "forest": {
+      "n": "Forest Lacquer",
+      "c": "#1d3a2d",
+      "p": 1400
+    },
+    "sodium": {
+      "n": "Sodium Orange",
+      "c": "#d9611a",
+      "p": 1900
+    },
+    "mint": {
+      "n": "Pale Mint",
+      "c": "#a7c6b2",
+      "p": 1600
+    },
+    "storm": {
+      "n": "Storm Grey",
+      "c": "#5a6169",
+      "p": 0
+    },
+    "monsoon": {
+      "n": "Monsoon Teal",
+      "c": "#0e5a61",
+      "p": 2200,
+      "rg": "in"
+    },
+    "saffron": {
+      "n": "Saffron Dusk",
+      "c": "#d4862a",
+      "p": 2200,
+      "rg": "in"
+    },
+    "riviera": {
+      "n": "Riviera Blue",
+      "c": "#3a74b0",
+      "p": 2200,
+      "rg": "eu"
+    },
+    "brume": {
+      "n": "Brume Grey",
+      "c": "#979da4",
+      "p": 2200,
+      "rg": "eu"
+    },
+    "mojave": {
+      "n": "Mojave Copper",
+      "c": "#9c5328",
+      "p": 2200,
+      "rg": "us"
+    },
+    "route": {
+      "n": "Route Red",
+      "c": "#b01e28",
+      "p": 2200,
+      "rg": "us"
+    },
+    "desert": {
+      "n": "Desert Pearl",
+      "c": "#ddcdb0",
+      "p": 2600,
+      "rg": "me"
+    },
+    "oud": {
+      "n": "Oud Bronze",
+      "c": "#6a4628",
+      "p": 2600,
+      "rg": "me"
+    },
+    "sakura": {
+      "n": "Sakura Pearl",
+      "c": "#ecd0d4",
+      "p": 2400,
+      "rg": "jp"
+    },
+    "kintsugi": {
+      "n": "Kintsugi Gold",
+      "c": "#b28d3c",
+      "p": 2400,
+      "rg": "jp"
+    },
+    "fjord": {
+      "n": "Fjord Ice",
+      "c": "#a4c2d3",
+      "p": 2200,
+      "rg": "nd"
+    },
+    "aurorag": {
+      "n": "Aurora Green",
+      "c": "#1c6853",
+      "p": 2200,
+      "rg": "nd"
+    }
+  },
+  "finishes": {
+    "gloss": {
+      "n": "Gloss",
+      "r": 0.14,
+      "m": 0,
+      "cc": 1,
+      "p": 0
+    },
+    "metallic": {
+      "n": "Metallic",
+      "r": 0.3,
+      "m": 0.62,
+      "cc": 1,
+      "p": 0
+    },
+    "satin": {
+      "n": "Satin",
+      "r": 0.46,
+      "m": 0.25,
+      "cc": 0.35,
+      "p": 900
+    },
+    "matte": {
+      "n": "Matte",
+      "r": 0.84,
+      "m": 0.05,
+      "cc": 0,
+      "p": 2600
+    },
+    "chroma": {
+      "n": "Chroma",
+      "r": 0.24,
+      "m": 0.55,
+      "cc": 1,
+      "p": 6800
+    }
+  },
+  "liveries": {
+    "none": {
+      "n": "None",
+      "id": 0,
+      "p": 0
+    },
+    "stripes": {
+      "n": "Twin stripes",
+      "id": 1,
+      "p": 2200
+    },
+    "twotone": {
+      "n": "Two-tone",
+      "id": 2,
+      "p": 1800
+    },
+    "hex": {
+      "n": "Honeycomb",
+      "id": 3,
+      "p": 3100
+    },
+    "camo": {
+      "n": "Digital camo",
+      "id": 4,
+      "p": 3400
+    },
+    "chevron": {
+      "n": "Chevron",
+      "id": 5,
+      "p": 2900
+    },
+    "pin": {
+      "n": "Pinstripe",
+      "id": 6,
+      "p": 1200
+    },
+    "jaali": {
+      "n": "Jaali lattice",
+      "id": 7,
+      "p": 3800,
+      "rg": "in"
+    },
+    "seigaiha": {
+      "n": "Seigaiha waves",
+      "id": 8,
+      "p": 3800,
+      "rg": "jp"
+    },
+    "arabesque": {
+      "n": "Arabesque star",
+      "id": 9,
+      "p": 3800,
+      "rg": "me"
+    },
+    "aurora": {
+      "n": "Aurora bands",
+      "id": 10,
+      "p": 3800,
+      "rg": "nd"
+    }
+  },
+  "liveryColors": {
+    "black": {
+      "n": "Black",
+      "c": "#121316"
+    },
+    "white": {
+      "n": "White",
+      "c": "#eceef0"
+    },
+    "clay": {
+      "n": "Clay",
+      "c": "#b8905e"
+    },
+    "sodium": {
+      "n": "Sodium",
+      "c": "#d9611a"
+    },
+    "ultra": {
+      "n": "Ultramarine",
+      "c": "#2a3fbf"
+    },
+    "gold": {
+      "n": "Gold",
+      "c": "#c29a45"
+    }
+  },
+  "wheels": {
+    "aero": {
+      "n": "Aero disc",
+      "p": 0
+    },
+    "five": {
+      "n": "Five-spoke forged",
+      "p": 2400
+    },
+    "turbine": {
+      "n": "Turbine",
+      "p": 2900
+    },
+    "mesh": {
+      "n": "Mesh classic",
+      "p": 2600
+    },
+    "ten": {
+      "n": "Ten-spoke",
+      "p": 1900
+    }
+  },
+  "wheelSizesUSD": {
+    "19": 0,
+    "20": 900,
+    "21": 1800,
+    "22": 2900
+  },
+  "rimRadiusBySize": {
+    "19": 0.232,
+    "20": 0.248,
+    "21": 0.264,
+    "22": 0.28
+  },
+  "wheelFinishes": {
+    "silver": {
+      "n": "Sterling",
+      "c": "#c7cad0",
+      "m": 0.92,
+      "r": 0.26,
+      "p": 0
+    },
+    "gun": {
+      "n": "Gunmetal",
+      "c": "#4a4f56",
+      "m": 0.85,
+      "r": 0.34,
+      "p": 0
+    },
+    "black": {
+      "n": "Gloss black",
+      "c": "#141518",
+      "m": 0.3,
+      "r": 0.18,
+      "p": 0
+    },
+    "bronze": {
+      "n": "Satin bronze",
+      "c": "#8a6a3a",
+      "m": 0.85,
+      "r": 0.42,
+      "p": 600
+    },
+    "clay": {
+      "n": "Clay",
+      "c": "#b08a5f",
+      "m": 0.25,
+      "r": 0.5,
+      "p": 600
+    }
+  },
+  "calipers": {
+    "graphite": {
+      "n": "Graphite",
+      "c": "#3a3d42",
+      "p": 0
+    },
+    "red": {
+      "n": "Signal red",
+      "c": "#c2272d",
+      "p": 700
+    },
+    "blue": {
+      "n": "Lacquer blue",
+      "c": "#2a4bd1",
+      "p": 700
+    },
+    "sodium": {
+      "n": "Sodium",
+      "c": "#e0661c",
+      "p": 700
+    },
+    "brass": {
+      "n": "Brass",
+      "c": "#b5964f",
+      "p": 900
+    }
+  },
+  "roof": {
+    "body": {
+      "n": "Body colour",
+      "s": "Body",
+      "p": 0
+    },
+    "black": {
+      "n": "Gloss black",
+      "s": "Black",
+      "p": 600
+    },
+    "carbon": {
+      "n": "Exposed carbon",
+      "s": "Carbon",
+      "p": 3800
+    },
+    "glass": {
+      "n": "Panoramic glass",
+      "s": "Glass",
+      "p": 2100
+    }
+  },
+  "accentParts": {
+    "body": {
+      "n": "Body colour",
+      "s": "Body",
+      "p": 0
+    },
+    "black": {
+      "n": "Gloss black",
+      "s": "Black",
+      "p": 800
+    },
+    "carbon": {
+      "n": "Exposed carbon",
+      "s": "Carbon",
+      "p": 4900
+    }
+  },
+  "spoilers": {
+    "none": {
+      "n": "None",
+      "s": "None",
+      "p": 0
+    },
+    "duck": {
+      "n": "Ducktail",
+      "s": "Ducktail",
+      "p": 1200
+    },
+    "wing": {
+      "n": "Swan-neck wing",
+      "s": "Wing",
+      "p": 3600
+    }
+  },
+  "grilles": {
+    "honey": {
+      "n": "Honeycomb",
+      "s": "Honeycomb",
+      "p": 0
+    },
+    "slats": {
+      "n": "Slats",
+      "s": "Slats",
+      "p": 400
+    },
+    "sealed": {
+      "n": "Sealed",
+      "s": "Sealed",
+      "p": 0
+    }
+  },
+  "lightSignatures": {
+    "blade": {
+      "n": "Blade",
+      "p": 0
+    },
+    "quad": {
+      "n": "Quad",
+      "p": 600
+    },
+    "arc": {
+      "n": "Arc",
+      "p": 900
+    }
+  },
+  "lampTints": {
+    "ice": {
+      "n": "Ice white",
+      "c": "#eaf4ff"
+    },
+    "warm": {
+      "n": "Warm white",
+      "c": "#ffd9a8"
+    },
+    "yellow": {
+      "n": "Selective yellow",
+      "c": "#ffd43a",
+      "only": [
+        "eu",
+        "jp"
+      ]
+    }
+  },
+  "seatMaterials": {
+    "nappa": {
+      "n": "Nappa",
+      "ro": 0.5,
+      "p": 0
+    },
+    "alcantara": {
+      "n": "Alcantara",
+      "ro": 0.97,
+      "p": 1600
+    },
+    "knit": {
+      "n": "Knit",
+      "ro": 0.9,
+      "p": 0
+    },
+    "wool": {
+      "n": "Wool",
+      "ro": 1,
+      "p": 1400,
+      "rg": "nd"
+    }
+  },
+  "seatColours": {
+    "obsidian": {
+      "n": "Obsidian",
+      "c": "#1b1c1f"
+    },
+    "cognac": {
+      "n": "Cognac",
+      "c": "#8a4b27"
+    },
+    "bone": {
+      "n": "Bone",
+      "c": "#d6ccbc"
+    },
+    "oxblood": {
+      "n": "Oxblood",
+      "c": "#5b1820"
+    },
+    "slate": {
+      "n": "Slate",
+      "c": "#4b5560"
+    },
+    "ocean": {
+      "n": "Ocean",
+      "c": "#1f3550"
+    }
+  },
+  "quilting": {
+    "plain": {
+      "n": "Plain",
+      "id": 0,
+      "p": 0
+    },
+    "diamond": {
+      "n": "Diamond",
+      "id": 14,
+      "p": 1100
+    },
+    "hex": {
+      "n": "Hexagon",
+      "id": 15,
+      "p": 1300
+    },
+    "channel": {
+      "n": "Channels",
+      "id": 16,
+      "p": 800
+    },
+    "perf": {
+      "n": "Perforated",
+      "id": 17,
+      "p": 600
+    }
+  },
+  "stitching": {
+    "match": {
+      "n": "Matched",
+      "c": null
+    },
+    "clay": {
+      "n": "Clay",
+      "c": "#c9a46a"
+    },
+    "red": {
+      "n": "Signal red",
+      "c": "#c2272d"
+    },
+    "bone": {
+      "n": "Bone",
+      "c": "#e8e0d0"
+    },
+    "blue": {
+      "n": "Datum blue",
+      "c": "#4a6cf0"
+    }
+  },
+  "trims": {
+    "carbon": {
+      "n": "Forged carbon",
+      "id": 11,
+      "a": "#141619",
+      "b": "#4a515c",
+      "ro": 0.32,
+      "me": 0.25,
+      "p": 2800
+    },
+    "walnut": {
+      "n": "Open-pore walnut",
+      "id": 12,
+      "a": "#3b2516",
+      "b": "#7a5232",
+      "ro": 0.62,
+      "me": 0,
+      "p": 1500
+    },
+    "alu": {
+      "n": "Brushed aluminium",
+      "id": 13,
+      "a": "#c9ccd1",
+      "b": "#8e939a",
+      "ro": 0.32,
+      "me": 0.9,
+      "p": 900
+    },
+    "piano": {
+      "n": "Piano black",
+      "id": 0,
+      "a": "#0d0e10",
+      "b": "#0d0e10",
+      "ro": 0.06,
+      "me": 0,
+      "p": 0
+    },
+    "rosewood": {
+      "n": "Indian rosewood",
+      "id": 12,
+      "a": "#4a1f14",
+      "b": "#8a4428",
+      "ro": 0.5,
+      "me": 0,
+      "p": 2400,
+      "rg": "in"
+    },
+    "hinoki": {
+      "n": "Hinoki cypress",
+      "id": 12,
+      "a": "#c9a77a",
+      "b": "#ead1a6",
+      "ro": 0.7,
+      "me": 0,
+      "p": 2400,
+      "rg": "jp"
+    },
+    "pearl": {
+      "n": "Mother of pearl",
+      "id": 0,
+      "a": "#e8e4dc",
+      "b": "#e8e4dc",
+      "ro": 0.18,
+      "me": 0.3,
+      "p": 3200,
+      "rg": "me",
+      "chroma": "#b7d6e8"
+    }
+  },
+  "ambientPresets": {
+    "clay": {
+      "n": "Clay",
+      "c": "#e0a65a"
+    },
+    "ice": {
+      "n": "Ice",
+      "c": "#9fd4ff"
+    },
+    "ultra": {
+      "n": "Ultramarine",
+      "c": "#5162ff"
+    },
+    "rose": {
+      "n": "Rose",
+      "c": "#ff6f9a"
+    },
+    "emerald": {
+      "n": "Emerald",
+      "c": "#2fd89a"
+    },
+    "amber": {
+      "n": "Amber",
+      "c": "#ffb000"
+    }
+  },
+  "ambientModes": {
+    "static": {
+      "n": "Static",
+      "p": 0
+    },
+    "breathe": {
+      "n": "Breathe",
+      "p": 0
+    },
+    "flow": {
+      "n": "Flow",
+      "p": 350
+    }
+  },
+  "packs": {
+    "monsoon": {
+      "n": "Monsoon pack",
+      "d": "Hydrophobic glass, sealed underbody and ride height raised 20 mm.",
+      "p": 3200
+    },
+    "heatshield": {
+      "n": "Ceramic heat shield",
+      "d": "A ceramic glass layer that cuts cabin heat without darkening the tint.",
+      "p": 1400
+    },
+    "autobahn": {
+      "n": "Autobahn aero",
+      "d": "Adds the swan-neck wing, tuned for sustained high speed.",
+      "p": 3900
+    },
+    "winter": {
+      "n": "Winter readiness",
+      "d": "Heated windscreen, steering wheel and washer jets.",
+      "p": 1300
+    },
+    "tow": {
+      "n": "Tow and trail",
+      "d": "A concealed tow hitch rated to 2,000 kg with trailer stability assist.",
+      "p": 1600
+    },
+    "sunbelt": {
+      "n": "Sunbelt cooling",
+      "d": "Ventilated seats and an uprated cabin cooling circuit.",
+      "p": 1100
+    },
+    "sand": {
+      "n": "Sand filtration",
+      "d": "Two-stage intake filter and sealed door apertures for desert driving.",
+      "p": 1700
+    },
+    "thermal": {
+      "n": "Gold thermal glass",
+      "d": "Metal-oxide glass that reflects infrared, with a faint gold sheen.",
+      "p": 2900
+    },
+    "fold": {
+      "n": "Compact mirrors",
+      "d": "Power-folding mirrors that tuck flat for narrow streets.",
+      "p": 700
+    },
+    "cam": {
+      "n": "Narrow-street cameras",
+      "d": "Front corner cameras with a 180° view for tight junctions.",
+      "p": 900
+    },
+    "arctic": {
+      "n": "Arctic pack",
+      "d": "Auxiliary lamps, heat-pump pre-conditioning and a studded tyre option.",
+      "p": 2400
+    },
+    "heatpump": {
+      "n": "Cabin pre-heat",
+      "d": "Scheduled pre-heating from the app, even when unplugged.",
+      "p": 900
+    }
+  },
+  "regions": {
+    "in": {
+      "n": "India",
+      "city": "Pune",
+      "drive": "RHD",
+      "cur": "INR",
+      "loc": "en-IN",
+      "rate": 83.4,
+      "tax": 1.42,
+      "vlt": 50,
+      "weeks": 16,
+      "lat": 21,
+      "lon": 78,
+      "paints": [
+        "monsoon",
+        "saffron"
+      ],
+      "liveries": [
+        "jaali"
+      ],
+      "trims": [
+        "rosewood"
+      ],
+      "seats": [],
+      "packs": [
+        "monsoon",
+        "heatshield"
+      ],
+      "tints": [],
+      "noSize": {
+        "22": "Not offered in India: 22-inch wheels reduce ground clearance below what regional roads need."
+      }
+    },
+    "eu": {
+      "n": "Europe",
+      "city": "Munich",
+      "drive": "LHD",
+      "cur": "EUR",
+      "loc": "de-DE",
+      "rate": 0.92,
+      "tax": 1.19,
+      "vlt": 70,
+      "weeks": 12,
+      "lat": 50,
+      "lon": 10,
+      "paints": [
+        "riviera",
+        "brume"
+      ],
+      "liveries": [],
+      "trims": [],
+      "seats": [],
+      "packs": [
+        "autobahn",
+        "winter"
+      ],
+      "tints": [
+        "yellow"
+      ],
+      "noSize": {}
+    },
+    "us": {
+      "n": "North America",
+      "city": "Los Angeles",
+      "drive": "LHD",
+      "cur": "USD",
+      "loc": "en-US",
+      "rate": 1,
+      "tax": 1.08,
+      "vlt": 35,
+      "weeks": 10,
+      "lat": 40,
+      "lon": -100,
+      "paints": [
+        "mojave",
+        "route"
+      ],
+      "liveries": [],
+      "trims": [],
+      "seats": [],
+      "packs": [
+        "tow",
+        "sunbelt"
+      ],
+      "tints": [],
+      "noSize": {}
+    },
+    "me": {
+      "n": "Middle East",
+      "city": "Dubai",
+      "drive": "LHD",
+      "cur": "AED",
+      "loc": "en-AE",
+      "rate": 3.67,
+      "tax": 1.05,
+      "vlt": 50,
+      "weeks": 14,
+      "lat": 25,
+      "lon": 55,
+      "paints": [
+        "desert",
+        "oud"
+      ],
+      "liveries": [
+        "arabesque"
+      ],
+      "trims": [
+        "pearl"
+      ],
+      "seats": [],
+      "packs": [
+        "sand",
+        "thermal"
+      ],
+      "tints": [],
+      "noSize": {}
+    },
+    "jp": {
+      "n": "Japan",
+      "city": "Tokyo",
+      "drive": "RHD",
+      "cur": "JPY",
+      "loc": "ja-JP",
+      "rate": 149,
+      "tax": 1.1,
+      "vlt": 70,
+      "weeks": 14,
+      "lat": 36,
+      "lon": 138,
+      "paints": [
+        "sakura",
+        "kintsugi"
+      ],
+      "liveries": [
+        "seigaiha"
+      ],
+      "trims": [
+        "hinoki"
+      ],
+      "seats": [],
+      "packs": [
+        "fold",
+        "cam"
+      ],
+      "tints": [
+        "yellow"
+      ],
+      "noSize": {
+        "22": "Not offered in Japan: over-width rules for this model rule out 22-inch wheels."
+      }
+    },
+    "nd": {
+      "n": "Nordics",
+      "city": "Stockholm",
+      "drive": "LHD",
+      "cur": "SEK",
+      "loc": "sv-SE",
+      "rate": 10.6,
+      "tax": 1.25,
+      "vlt": 70,
+      "weeks": 13,
+      "lat": 62,
+      "lon": 15,
+      "paints": [
+        "fjord",
+        "aurorag"
+      ],
+      "liveries": [
+        "aurora"
+      ],
+      "trims": [],
+      "seats": [
+        "wool"
+      ],
+      "packs": [
+        "arctic",
+        "heatpump"
+      ],
+      "tints": [],
+      "noSize": {}
+    }
+  },
+  "steps": [
+    {
+      "id": "paint",
+      "g": "Exterior",
+      "n": "Paint",
+      "d": "Choose a colour and how it catches the light. The new paint sweeps over the old so you can compare them on the same panel."
+    },
+    {
+      "id": "livery",
+      "g": "Exterior",
+      "n": "Livery",
+      "d": "Lay a pattern over your paint. It is drawn by the paint itself, so it runs cleanly across every panel gap."
+    },
+    {
+      "id": "wheels",
+      "g": "Exterior",
+      "n": "Wheels and brakes",
+      "d": "Pick a design, size and finish, then the caliper colour you will see through the spokes."
+    },
+    {
+      "id": "body",
+      "g": "Exterior",
+      "n": "Bodywork",
+      "d": "Set the roof, the accent parts around the body, the rear aero and the grille."
+    },
+    {
+      "id": "lights",
+      "g": "Exterior",
+      "n": "Lights",
+      "d": "Choose the shape of your light signature and its tint, then play the welcome sequence."
+    },
+    {
+      "id": "glass",
+      "g": "Exterior",
+      "n": "Glass",
+      "d": "Set how dark the side glass is, within the legal limit where you drive."
+    },
+    {
+      "id": "seats",
+      "g": "Interior",
+      "n": "Seats",
+      "d": "Material, colour, quilting and stitching. The roof lifts away so you can see the whole cabin."
+    },
+    {
+      "id": "trim",
+      "g": "Interior",
+      "n": "Cabin trim",
+      "d": "The band of material across the dashboard, framing the screen."
+    },
+    {
+      "id": "ambient",
+      "g": "Interior",
+      "n": "Ambient light",
+      "d": "The light that traces the cabin at night. Any colour, steady or moving."
+    },
+    {
+      "id": "region",
+      "g": "Regional",
+      "n": "Regional pack",
+      "d": ""
+    }
+  ],
+  "cabinSteps": [
+    "seats",
+    "trim",
+    "ambient"
+  ],
+  "defaultBuild": {
+    "region": "in",
+    "paint": "silver",
+    "custom": "#4f7d8c",
+    "finish": "metallic",
+    "livery": "none",
+    "livCol": "clay",
+    "livScale": 1,
+    "wheel": "five",
+    "size": 20,
+    "wfin": "gun",
+    "caliper": "red",
+    "roof": "black",
+    "accent": "black",
+    "spoiler": "none",
+    "grille": "honey",
+    "sig": "blade",
+    "ltint": "ice",
+    "vlt": 70,
+    "seatMat": "nappa",
+    "seatCol": "cognac",
+    "quilt": "diamond",
+    "stitch": "clay",
+    "trim": "carbon",
+    "amb": "#e0a65a",
+    "ambMode": "breathe",
+    "ambBri": 0.8,
+    "packs": []
+  }
+}
