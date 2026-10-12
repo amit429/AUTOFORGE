@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import {
   BODY_TYPES,
+  MODS,
   CABIN_STEPS,
   DEFAULT_BUILD,
   PACKS,
@@ -9,6 +10,7 @@ import {
   STEPS,
   type Build,
   type OptionKey,
+  type ModId,
   type PackId,
   type RegionId,
 } from '@/data/options';
@@ -61,6 +63,7 @@ interface BuildState {
   /** Records a finished slider drag as one history entry. */
   commitLive: <K extends OptionKey>(key: K, start: Build[K]) => void;
   togglePack: (pack: PackId) => void;
+  toggleMod: (mod: ModId) => void;
   snapshot: (target: Patch, label: string | null) => void;
   undo: () => void;
   chooseRegion: (region: RegionId) => void;
@@ -106,6 +109,11 @@ export const useBuild = create<BuildState>((set, get) => ({
     }));
     if (key === 'body' && r.next.seating)
       toast(`Seating changed to ${SEATINGS[r.next.seating].n} to fit the ${BODY_TYPES[r.build.body].n}.`);
+    if (key === 'body' && r.next.mods && r.prev.mods) {
+      const gone = r.prev.mods.filter((m) => !r.next.mods!.includes(m)).map((m) => MODS[m].n.toLowerCase());
+      if (gone.length)
+        toast(`Removed the ${gone.join(', ')}: not available on the ${BODY_TYPES[r.build.body].n}.`, 'warn');
+    }
     return true;
   },
 
@@ -128,6 +136,15 @@ export const useBuild = create<BuildState>((set, get) => ({
     const on = build.packs.includes(pack);
     const next = on ? build.packs.filter((p) => p !== pack) : [...build.packs, pack];
     if (get().set('packs', next)) toast(`${PACKS[pack].n} ${on ? 'removed' : 'added'}.`);
+  },
+
+  toggleMod: (mod) => {
+    const { build } = get();
+    const on = build.mods.includes(mod);
+    // Lift and lowered suspension are alternatives: fitting one removes the other.
+    const other: ModId | null = mod === 'lift' ? 'lowered' : mod === 'lowered' ? 'lift' : null;
+    const next = on ? build.mods.filter((m) => m !== mod) : [...build.mods.filter((m) => m !== other), mod];
+    if (get().set('mods', next)) toast(`${MODS[mod].n} ${on ? 'removed' : 'fitted'}.`);
   },
 
   snapshot: (target, label) => {

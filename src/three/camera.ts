@@ -24,6 +24,7 @@ export const POSES: Record<StepId | 'exploded' | 'cabin' | 'summary' | 'regionSc
   graphics: { theta: -0.55, phi: 1.32, r: 9.4, tx: -0.2, ty: 0.6, tz: 0 },
   wheels: { theta: 0.2, phi: 1.42, r: 4.4, tx: 1.2, ty: 0.42, tz: 0.6 },
   body: { theta: -0.85, phi: 1.16, r: 8.4, tx: 0, ty: 0.6, tz: 0 },
+  mods: { theta: 0.62, phi: 1.12, r: 9.8, tx: 0, ty: 0.7, tz: 0 },
   lights: { theta: 1.22, phi: 1.36, r: 5.8, tx: 1.6, ty: 0.62, tz: 0 },
   glass: { theta: 0.3, phi: 1.24, r: 7.2, tx: -0.4, ty: 0.9, tz: 0 },
   seats: { theta: 0.55, phi: 0.62, r: 5.4, tx: -0.45, ty: 0.85, tz: 0 },

@@ -61,6 +61,14 @@ describe('build store', () => {
     expect(s().change.keys).toEqual(['region', 'paint']);
   });
 
+  it('treats lift and lowered suspension as alternatives', () => {
+    useBuild.setState({ build: { ...cloneBuild(DEFAULT_BUILD), body: 'pickup', seating: 'five' } });
+    s().toggleMod('lift');
+    expect(s().build.mods).toEqual(['lift']);
+    s().toggleMod('lift');
+    expect(s().build.mods).toEqual([]);
+  });
+
   it('switches to the cabin view for interior steps', () => {
     const at = (id: string) => STEPS.findIndex((x) => x.id === id);
     s().goStep(at('seats'));

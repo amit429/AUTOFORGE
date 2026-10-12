@@ -1,7 +1,11 @@
 import {
   ACCENTS,
   AMBIENT_MODES,
+  AMBIENT_PRESETS,
   BODY_TYPES,
+  EXHAUSTS,
+  MODS,
+  UNDERGLOW_USD,
   SEATINGS,
   CALIPERS,
   FINISHES,
@@ -91,6 +95,18 @@ export function lineItems(b: Build): LineGroup[] {
         { label: 'Accent parts', detail: ACCENTS[b.accent].n, colour: null, usd: ACCENTS[b.accent].p },
         { label: 'Rear aero', detail: SPOILERS[b.spoiler].n, colour: null, usd: spoilerUSD(b) },
         { label: 'Grille', detail: GRILLES[b.grille].n, colour: null, usd: GRILLES[b.grille].p },
+        ...b.mods.map((m) => ({ label: MODS[m].n, detail: 'Mod', colour: null, usd: MODS[m].p })),
+        { label: 'Exhaust', detail: EXHAUSTS[b.exhaust].n, colour: null, usd: EXHAUSTS[b.exhaust].p },
+        ...(b.glow === 'none'
+          ? []
+          : [
+              {
+                label: 'Underglow',
+                detail: AMBIENT_PRESETS[b.glow].n,
+                colour: AMBIENT_PRESETS[b.glow].c,
+                usd: UNDERGLOW_USD,
+              },
+            ]),
         {
           label: 'Lights',
           detail: `${LIGHT_SIGNATURES[b.sig].n} signature, ${lower(LAMP_TINTS[b.ltint].n)}`,

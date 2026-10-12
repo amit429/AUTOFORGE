@@ -1,6 +1,9 @@
 import {
   ACCENTS,
+  AMBIENT_PRESETS,
   BODY_TYPES,
+  EXHAUSTS,
+  MODS,
   SEATINGS,
   AMBIENT_MODES,
   CALIPERS,
@@ -47,7 +50,7 @@ export const RANGES = {
 /** Keys in canonical order; serialisation and commission numbers depend on it. */
 export const BUILD_KEYS = Object.keys(DEFAULT_BUILD) as OptionKey[];
 
-export const cloneBuild = (b: Build): Build => ({ ...b, packs: [...b.packs] });
+export const cloneBuild = (b: Build): Build => ({ ...b, packs: [...b.packs], mods: [...b.mods] });
 
 export const sameValue = (a: unknown, b: unknown) =>
   Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((x, i) => x === b[i]) : a === b;
@@ -69,6 +72,7 @@ const CATALOGUE: Partial<Record<OptionKey, Record<string, unknown>>> = {
   accent: ACCENTS,
   spoiler: SPOILERS,
   grille: GRILLES,
+  exhaust: EXHAUSTS,
   sig: LIGHT_SIGNATURES,
   ltint: LAMP_TINTS,
   seatMat: SEAT_MATERIALS,
@@ -116,6 +120,14 @@ export function coerce<K extends OptionKey>(key: K, value: unknown): Build[K] | 
       return Array.isArray(value) && value.every((p) => typeof p === 'string' && p in PACKS)
         ? out([...new Set(value)])
         : undefined;
+    case 'mods':
+      return Array.isArray(value) && value.every((m) => typeof m === 'string' && m in MODS)
+        ? out([...new Set(value)])
+        : undefined;
+    case 'glow':
+      return value === 'none' || (typeof value === 'string' && value in AMBIENT_PRESETS)
+        ? out(value)
+        : undefined;
     default: {
       const cat = CATALOGUE[key];
       return cat && typeof value === 'string' && value in cat ? out(value) : undefined;
@@ -147,6 +159,13 @@ export function setOption<K extends OptionKey>(b: Build, key: K, raw: Build[K]):
       prev.seating = b.seating;
       next.seating = body.seating;
       build.seating = body.seating;
+    }
+    // Mods that do not fit the new body come off as part of the same change.
+    const kept = b.mods.filter((m) => MODS[m].bodies.includes(value as Build['body']));
+    if (kept.length !== b.mods.length) {
+      prev.mods = b.mods;
+      next.mods = kept;
+      build.mods = kept;
     }
   }
   if (key === 'packs') {
@@ -205,5 +224,7 @@ export function normalize(input: unknown): Build {
 /** Makes sure the seating layout is one the body takes, falling back to the body's default. */
 export function fitBody(b: Build): Build {
   const body = BODY_TYPES[b.body];
-  return body.layouts.includes(b.seating) ? b : { ...b, packs: [...b.packs], seating: body.seating };
+  const mods = b.mods.filter((m) => MODS[m].bodies.includes(b.body));
+  if (body.layouts.includes(b.seating) && mods.length === b.mods.length) return b;
+  return { ...cloneBuild(b), seating: body.layouts.includes(b.seating) ? b.seating : body.seating, mods };
 }

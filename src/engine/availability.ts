@@ -2,6 +2,7 @@ import {
   BODY_TYPES,
   LAMP_TINTS,
   LIVERIES,
+  MODS,
   PAINTS,
   REGIONS,
   SEATINGS,
@@ -76,6 +77,18 @@ export function availability<K extends OptionKey>(
         return { ok: false, reason: `The ${BODY_TYPES[body].n} does not take ${what}.` };
       }
       return OK;
+    }
+    case 'mods': {
+      const list = value as Build['mods'];
+      const unknown = list.find((m) => !MODS[m]);
+      if (unknown) return { ok: false, reason: 'That mod is not in the catalogue.' };
+      const misfit = body ? list.find((m) => !MODS[m].bodies.includes(body)) : undefined;
+      return misfit
+        ? {
+            ok: false,
+            reason: `The ${MODS[misfit].n.toLowerCase()} does not fit the ${BODY_TYPES[body!].n}.`,
+          }
+        : OK;
     }
     case 'packs': {
       const bad = (value as Build['packs']).find((p) => !R.packs.includes(p));

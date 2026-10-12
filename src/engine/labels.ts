@@ -1,13 +1,17 @@
 import {
   ACCENTS,
   AMBIENT_MODES,
+  AMBIENT_PRESETS,
   BODY_TYPES,
+  EXHAUSTS,
+  MODS,
   SEATINGS,
   CALIPERS,
   CUSTOM_PAINT_USD,
   FINISHES,
   GRAPHICS,
   GRILLES,
+  UNDERGLOW_USD,
   LAMP_TINTS,
   LIGHT_SIGNATURES,
   LIVERIES,
@@ -51,6 +55,9 @@ export const KEY_NAMES: Record<OptionKey, string> = {
   accent: 'Accents',
   spoiler: 'Rear aero',
   grille: 'Grille',
+  mods: 'Mods',
+  exhaust: 'Exhaust',
+  glow: 'Underglow',
   sig: 'Light signature',
   ltint: 'Lamp tint',
   vlt: 'Glass',
@@ -111,6 +118,14 @@ export function optionLabel(key: OptionKey, b: Build): OptionLabel {
       return { name: SPOILERS[b.spoiler].n, usd: spoilerUSD(b) };
     case 'grille':
       return { name: GRILLES[b.grille].n, usd: GRILLES[b.grille].p };
+    case 'mods':
+      return { name: b.mods.length ? b.mods.map((m) => MODS[m].n).join(', ') : 'No mods', usd: null };
+    case 'exhaust':
+      return { name: EXHAUSTS[b.exhaust].n, usd: EXHAUSTS[b.exhaust].p };
+    case 'glow':
+      return b.glow === 'none'
+        ? { name: 'Off', usd: 0 }
+        : { name: AMBIENT_PRESETS[b.glow].n, usd: UNDERGLOW_USD };
     case 'sig':
       return { name: LIGHT_SIGNATURES[b.sig].n, usd: LIGHT_SIGNATURES[b.sig].p };
     case 'ltint':
@@ -194,6 +209,8 @@ export function chipColour(key: OptionKey | '*', b: Build): string | null {
       return TRIMS[b.trim].a;
     case 'amb':
       return b.amb;
+    case 'glow':
+      return b.glow === 'none' ? null : AMBIENT_PRESETS[b.glow].c;
     default:
       return null;
   }

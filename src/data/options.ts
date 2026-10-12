@@ -18,6 +18,9 @@ export type RoofId = keyof typeof raw.roof;
 export type AccentId = keyof typeof raw.accentParts;
 export type SpoilerId = keyof typeof raw.spoilers;
 export type GrilleId = keyof typeof raw.grilles;
+export type ModId = keyof typeof raw.mods;
+export type ExhaustId = keyof typeof raw.exhausts;
+export type GlowId = 'none' | keyof typeof raw.ambientPresets;
 export type LightSignatureId = keyof typeof raw.lightSignatures;
 export type LampTintId = keyof typeof raw.lampTints;
 export type SeatMaterialId = keyof typeof raw.seatMaterials;
@@ -34,6 +37,7 @@ export type StepId =
   | 'graphics'
   | 'wheels'
   | 'body'
+  | 'mods'
   | 'lights'
   | 'glass'
   | 'seats'
@@ -66,6 +70,9 @@ export interface Build {
   accent: AccentId;
   spoiler: SpoilerId;
   grille: GrilleId;
+  mods: ModId[];
+  exhaust: ExhaustId;
+  glow: GlowId;
   sig: LightSignatureId;
   ltint: LampTintId;
   vlt: number;
@@ -197,6 +204,15 @@ export const ROOFS = raw.roof as Record<RoofId, ShortNamed>;
 export const ACCENTS = raw.accentParts as Record<AccentId, ShortNamed>;
 export const SPOILERS = raw.spoilers as Record<SpoilerId, ShortNamed>;
 export const GRILLES = raw.grilles as Record<GrilleId, ShortNamed>;
+export interface Mod extends Priced {
+  d: string;
+  /** Body styles the mod fits. */
+  bodies: BodyTypeId[];
+  g: 'stance' | 'utility';
+}
+export const MODS = raw.mods as Record<ModId, Mod>;
+export const EXHAUSTS = raw.exhausts as Record<ExhaustId, Priced>;
+export const UNDERGLOW_USD: number = raw.meta.underglowPriceUSD;
 export const LIGHT_SIGNATURES = raw.lightSignatures as Record<LightSignatureId, Priced>;
 export const LAMP_TINTS = raw.lampTints as Record<LampTintId, LampTint>;
 export const SEAT_MATERIALS = raw.seatMaterials as Record<SeatMaterialId, SeatMaterial>;

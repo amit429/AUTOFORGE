@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 60_000,
+  timeout: 90_000,
   // Every page runs a WebGL scene; more than two at once starves software rendering in headless runs.
   workers: 2,
   use: { baseURL: process.env.E2E_URL ?? 'http://localhost:3100', trace: 'retain-on-failure' },

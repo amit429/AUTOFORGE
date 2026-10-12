@@ -6,6 +6,7 @@ import { GlassStep } from './GlassStep';
 import { GraphicsStep } from './GraphicsStep';
 import { LightsStep } from './LightsStep';
 import { LiveryStep } from './LiveryStep';
+import { ModsStep } from './ModsStep';
 import { PaintStep } from './PaintStep';
 import { RegionStep } from './RegionStep';
 import { SeatsStep } from './SeatsStep';
@@ -20,6 +21,7 @@ export const STEP_PANELS: Record<StepId, ComponentType> = {
   graphics: GraphicsStep,
   wheels: WheelsStep,
   body: BodyStep,
+  mods: ModsStep,
   lights: LightsStep,
   glass: GlassStep,
   seats: SeatsStep,

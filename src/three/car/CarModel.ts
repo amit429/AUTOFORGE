@@ -12,8 +12,10 @@ import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 import {
   CALIPERS,
   FINISHES,
+  AMBIENT_PRESETS,
   LAMP_TINTS,
   LIVERIES,
+  type ModId,
   type GraphicId,
   LIVERY_COLOURS,
   QUILTS,
@@ -273,6 +275,7 @@ export class CarModel {
     this.buildBody(grilleMat);
     this.buildLights();
     this.buildExtras();
+    this.buildMods();
     this.screenCanvas = document.createElement('canvas');
     this.screenCanvas.width = 512;
     this.screenCanvas.height = 240;
@@ -771,6 +774,294 @@ export class CarModel {
     }
   }
 
+  /** One group per mod, shown or hidden as the build changes. */
+  private modGroups: Partial<Record<ModId, THREE.Group>> = {};
+  private barSegs: LightSeg[] = [];
+  private exhaustGroup = new THREE.Group();
+  private exhaustMat!: THREE.MeshStandardMaterial;
+  private glow!: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
+
+  /** Builds every mod for this body once; updMods toggles them. */
+  private buildMods() {
+    const g = this.geo;
+    const s = g.spec;
+    const steel = new THREE.MeshStandardMaterial({ color: lin('#2a2d31'), roughness: 0.4, metalness: 0.85 });
+    const chrome = new THREE.MeshStandardMaterial({ color: lin('#c9ccd1'), roughness: 0.18, metalness: 1 });
+    this.disposables.push(steel, chrome);
+    const group = (id: ModId, off: [number, number, number], parent: THREE.Object3D = this.shell) => {
+      const grp = new THREE.Group();
+      grp.visible = false;
+      this.modGroups[id] = grp;
+      this.addPart(`mod_${id}`, grp, off, parent);
+      return grp;
+    };
+    const tube = (pts: [number, number, number][], r: number, mat: THREE.Material) =>
+      mesh(
+        new THREE.TubeGeometry(
+          new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(...p))),
+          48,
+          r,
+          10,
+        ),
+        mat,
+      );
+
+    // Wide-body flares: an arc over each wheel, finished like the accent parts.
+    const flares = group('widebody', [0, 0, 0]);
+    for (const ax of [s.frontAxle, s.rearAxle])
+      for (const side of [1, -1]) {
+        const geo = new THREE.TorusGeometry(g.archR + 0.035, 0.055, 10, 40, Math.PI * 0.86);
+        geo.scale(1, 1, 0.55);
+        geo.rotateZ(Math.PI * 0.07);
+        const z = side * (g.halfW(ax) - 0.01);
+        geo.translate(ax, s.tyreR, z);
+        const m = mesh(geo, this.blackMat);
+        this.accentMeshes.push(m);
+        flares.add(m);
+      }
+
+    // Bonnet scoop: a painted hump on the bonnet.
+    const scoop = group('scoop', [0.3, 0.25, 0]);
+    {
+      const x = s.frontAxle - 0.25;
+      const geo = new THREE.SphereGeometry(0.28, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2);
+      geo.scale(1.3, 0.28, 0.85);
+      geo.translate(x, g.topY(x) - 0.01, 0);
+      scoop.add(mesh(geo, this.bodyMat));
+      scoop.add(mesh(boxAt(0.02, 0.05, 0.32, x + 0.34, g.topY(x) + 0.035, 0), this.trimDarkMat));
+    }
+
+    // Roof rack: rails along the roof edges and three crossbars.
+    const rack = group('rack', [0, 0.5, 0]);
+    {
+      const x0 = s.roofRear + 0.05;
+      const x1 = s.roofFront - 0.05;
+      const zr = g.glassPoint((x0 + x1) / 2, 0.12, 0.02).z;
+      for (const side of [1, -1]) {
+        const pts: [number, number, number][] = [];
+        for (let i = 0; i <= 8; i++) {
+          const x = x0 + ((x1 - x0) * i) / 8;
+          pts.push([x, g.roofLine(x) + 0.06, side * zr]);
+        }
+        rack.add(tube(pts, 0.018, steel));
+        for (const x of [x0 + 0.05, x1 - 0.05])
+          rack.add(mesh(boxAt(0.06, 0.06, 0.04, x, g.roofLine(x) + 0.03, side * zr), steel));
+      }
+      for (let i = 0; i < 3; i++) {
+        const x = x0 + 0.25 + (i * (x1 - x0 - 0.5)) / 2;
+        rack.add(mesh(boxAt(0.05, 0.025, zr * 2 + 0.06, x, g.roofLine(x) + 0.09, 0), steel));
+      }
+    }
+
+    // LED light bar across the top of the windscreen.
+    const bar = group('lightbar', [0.2, 0.55, 0]);
+    {
+      const x = s.roofFront + 0.04;
+      const y = g.roofLine(x) + 0.07;
+      const w = g.glassPoint(x, 0.2, 0).z * 2;
+      bar.add(mesh(boxAt(0.08, 0.07, w, x, y, 0), steel));
+      for (let i = 0; i < 12; i++) {
+        const z = -w / 2 + 0.06 + (i * (w - 0.12)) / 11;
+        const L = this.lightSeg(boxAt(0.01, 0.04, 0.07, x + 0.042, y, z), '#f4f8ff');
+        L.sp.position.set(x + 0.08, y, z);
+        bar.add(L.m, L.sp);
+        this.barSegs.push(L);
+      }
+    }
+
+    // Bull bar: a tubular guard in front of the grille.
+    const bull = group('bullbar', [0.55, 0, 0]);
+    {
+      const x = s.front + 0.06;
+      const y0 = s.noseBottom + 0.02;
+      const y1 = s.grilleY + s.grilleH / 2 + 0.12;
+      const zw = s.grilleW / 2 + 0.06;
+      bull.add(
+        tube(
+          [
+            [x - 0.06, y0, zw],
+            [x, y1 - 0.05, zw],
+            [x + 0.01, y1, zw * 0.6],
+            [x + 0.01, y1, -zw * 0.6],
+            [x, y1 - 0.05, -zw],
+            [x - 0.06, y0, -zw],
+          ],
+          0.035,
+          steel,
+        ),
+      );
+      bull.add(
+        tube(
+          [
+            [x, y0 + 0.08, zw],
+            [x + 0.03, y0 + 0.1, 0],
+            [x, y0 + 0.08, -zw],
+          ],
+          0.028,
+          steel,
+        ),
+      );
+    }
+
+    // Snorkel up the right windscreen pillar.
+    const snorkel = group('snorkel', [0.1, 0.2, 0.4]);
+    {
+      const xf = s.aBase + 0.25;
+      const z = g.sideZ(xf, g.belt(xf) - 0.1) + 0.05;
+      const top = g.roofLine(s.roofFront + 0.15);
+      snorkel.add(
+        tube(
+          [
+            [xf, g.belt(xf) - 0.15, z],
+            [s.aBase + 0.05, g.belt(s.aBase) + 0.05, z],
+            [s.roofFront + 0.2, top - 0.02, z - 0.04],
+            [s.roofFront + 0.12, top + 0.05, z - 0.06],
+          ],
+          0.045,
+          steel,
+        ),
+      );
+      snorkel.add(mesh(boxAt(0.12, 0.09, 0.11, s.roofFront + 0.12, top + 0.08, z - 0.06), steel));
+    }
+
+    // Spare wheel on the tailgate.
+    const spare = group('spare', [-0.5, 0.1, 0]);
+    {
+      const cy = (s.tailY + g.topY(s.rear + 0.1)) / 2 + 0.05;
+      const x = g.endX(cy, 0, -1) - 0.13;
+      const tyre = mesh(this.tyreGeometry(s.tyreR * 0.62, s.tyreR * 0.95, 0.22), this.tireMat);
+      tyre.rotation.y = Math.PI / 2;
+      tyre.position.set(x, cy, 0);
+      const hub = mesh(
+        new THREE.CylinderGeometry(s.tyreR * 0.62, s.tyreR * 0.62, 0.18, 32).rotateZ(Math.PI / 2),
+        this.rimMat,
+      );
+      hub.position.set(x, cy, 0);
+      spare.add(tyre, hub);
+    }
+
+    // Pickup bed cover.
+    if (s.bed) {
+      const cover = group('tonneau', [-0.2, 0.4, 0]);
+      const [b0, b1] = s.bed;
+      const y = g.belt((b0 + b1) / 2) - 0.01;
+      const w = g.innerHalf((b0 + b1) / 2) * 2 + 0.08;
+      cover.add(mesh(boxAt(b0 - b1 + 0.04, 0.025, w, (b0 + b1) / 2, y, 0), this.trimDarkMat));
+    }
+
+    // Exhaust tips live in their own group, rebuilt per style.
+    this.exhaustGroup.name = 'exhaust';
+    this.shell.add(this.exhaustGroup);
+    this.exhaustMat = chrome;
+
+    // Underglow: a soft coloured pool on the floor under the car.
+    this.glow = new THREE.Mesh(
+      new THREE.PlaneGeometry(g.length * 1.05, s.halfWidth * 2.6),
+      new THREE.MeshBasicMaterial({
+        map: this.glowTex,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        opacity: 0,
+      }),
+    );
+    this.glow.rotation.x = -Math.PI / 2;
+    this.glow.position.set((s.front + s.rear) / 2, 0.012, 0);
+    this.glow.visible = false;
+    this.root.add(this.glow);
+    this.disposables.push(this.glow.material);
+  }
+
+  private buildExhaust() {
+    const s = this.geo.spec;
+    for (const c of [...this.exhaustGroup.children]) {
+      this.exhaustGroup.remove(c);
+      (c as THREE.Mesh).geometry?.dispose();
+    }
+    const y = s.tailBottom + 0.02;
+    const x = this.geo.endX(y + 0.05, 0, -1) + 0.06;
+    const style = this.build.exhaust;
+    const zs =
+      style === 'twin'
+        ? [0.45, -0.45]
+        : style === 'quad'
+          ? [0.52, 0.38, -0.38, -0.52]
+          : style === 'centre'
+            ? [0.07, -0.07]
+            : [];
+    for (const z of zs) {
+      const tip = mesh(
+        new THREE.CylinderGeometry(0.045, 0.05, 0.16, 24, 1, true).rotateZ(Math.PI / 2),
+        this.exhaustMat,
+      );
+      tip.position.set(x - 0.04, y, z);
+      const inner = mesh(new THREE.CircleGeometry(0.04, 20).rotateY(-Math.PI / 2), this.trimDarkMat);
+      inner.position.set(x - 0.1, y, z);
+      this.exhaustGroup.add(tip, inner);
+    }
+  }
+
+  /** Total body lift from packs and suspension mods. */
+  private rideOffset() {
+    const b = this.build;
+    const lift = b.mods.includes('lift') ? 0.06 : 0;
+    const low = b.mods.includes('lowered') ? 0.03 : 0;
+    return (b.packs.includes('monsoon') ? 0.035 : 0) + lift - low;
+  }
+
+  private updRide(animate: boolean) {
+    gsap.to(this.shell.position, {
+      y: this.rideOffset(),
+      duration: animate ? dur(1.1) : 0,
+      ease: 'elastic.out(1,.6)',
+    });
+  }
+
+  private updMods(prev: ModId[], animate: boolean) {
+    const b = this.build;
+    for (const [id, grp] of Object.entries(this.modGroups) as [ModId, THREE.Group][]) {
+      const on = b.mods.includes(id);
+      const was = prev.includes(id);
+      gsap.killTweensOf(grp.scale);
+      if (on) {
+        grp.visible = true;
+        if (animate && !was)
+          gsap.fromTo(
+            grp.scale,
+            { x: 0.001, y: 0.001, z: 0.001 },
+            { x: 1, y: 1, z: 1, duration: dur(0.75), ease: 'back.out(1.8)' },
+          );
+        else grp.scale.set(1, 1, 1);
+      } else if (animate && was)
+        gsap.to(grp.scale, {
+          x: 0.001,
+          y: 0.001,
+          z: 0.001,
+          duration: dur(0.3),
+          ease: 'power2.in',
+          onComplete: () => void (grp.visible = false),
+        });
+      else grp.visible = false;
+    }
+    this.updRide(animate);
+    const barOn = this.lightsOn && b.mods.includes('lightbar');
+    this.barSegs.forEach((sg) => (sg.mat.emissiveIntensity = barOn ? 3 : 0));
+  }
+
+  private updGlow(animate: boolean) {
+    const g = this.build.glow;
+    const mat = this.glow.material;
+    if (g !== 'none') {
+      mat.color.copy(lin(AMBIENT_PRESETS[g].c));
+      this.glow.visible = true;
+    }
+    gsap.to(mat, {
+      opacity: g === 'none' ? 0 : 0.85,
+      duration: animate ? dur(0.8) : 0,
+      onComplete: () => void (this.glow.visible = this.build.glow !== 'none'),
+    });
+  }
+
   /** Seat parts currently in the cabin, rebuilt when the seating layout changes. */
   private seatParts: Part[] = [];
 
@@ -1128,6 +1419,9 @@ export class CarModel {
     this.P.steering!.base.z = REGIONS[b.region].drive === 'RHD' ? this.steerZ : -this.steerZ;
     this.updPacks([], false);
     this.updGraphics(false);
+    this.buildExhaust();
+    this.updMods([], false);
+    this.updGlow(false);
   }
 
   private updPaint(animate: boolean) {
@@ -1289,6 +1583,11 @@ export class CarModel {
         stagger: { each: dur(0.04), from: 'center' },
       });
     } else gsap.to([...hs, ...ts], { emissiveIntensity: 0, duration: dur(0.4) });
+    const barOn = on && this.build.mods.includes('lightbar');
+    gsap.to(
+      this.barSegs.map((sg) => sg.mat),
+      { emissiveIntensity: barOn ? 3 : 0, duration: dur(0.3), stagger: dur(0.02) },
+    );
     const fogOn = on && this.build.packs.includes('arctic');
     this.fogSegs.forEach((f) => gsap.to(f.mat, { emissiveIntensity: fogOn ? 2.6 : 0, duration: 0.4 }));
   }
@@ -1316,6 +1615,12 @@ export class CarModel {
       .to(ts, { emissiveIntensity: 2.6, duration: 0.4 }, '>')
       .to(hs, { emissiveIntensity: 3.2, duration: 0.5, stagger: 0.02 }, '>-0.2');
     this.fogSegs.forEach((f) => gsap.to(f.mat, { emissiveIntensity: fog, duration: 0.4, delay: 0.6 }));
+    if (this.build.mods.includes('lightbar'))
+      gsap.fromTo(
+        this.barSegs.map((sg) => sg.mat),
+        { emissiveIntensity: 0 },
+        { emissiveIntensity: 3, duration: 0.12, stagger: { each: 0.03, from: 'center' }, delay: 0.3 },
+      );
   }
 
   private updSignature(animate: boolean) {
@@ -1389,11 +1694,7 @@ export class CarModel {
     const has = (k: PackId) => this.build.packs.includes(k);
     const added = (k: PackId) => has(k) && !prev.includes(k);
     const d = (s: number) => (animate ? dur(s) : 0);
-    gsap.to(this.shell.position, {
-      y: has('monsoon') ? 0.035 : 0,
-      duration: d(1.1),
-      ease: 'elastic.out(1,.6)',
-    });
+    this.updRide(animate);
     this.updGlass(animate);
     gsap.killTweensOf(this.hitch.scale);
     if (has('tow')) {
@@ -1471,6 +1772,15 @@ export class CarModel {
         case 'seating':
           run.add('seating');
           break;
+        case 'mods':
+          run.add('mods');
+          break;
+        case 'exhaust':
+          run.add('exhaust');
+          break;
+        case 'glow':
+          run.add('glow');
+          break;
         case 'doorArt':
         case 'rearArt':
         case 'artCol':
@@ -1534,6 +1844,15 @@ export class CarModel {
         case 'graphics':
           this.updGraphics(animate);
           break;
+        case 'mods':
+          this.updMods(prev.mods, animate);
+          break;
+        case 'exhaust':
+          this.buildExhaust();
+          break;
+        case 'glow':
+          this.updGlow(animate);
+          break;
         case 'region':
           this.updDrive(animate);
           break;
@@ -1584,6 +1903,7 @@ export class CarModel {
     for (const s of this.headSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 3.2, 0, 1) * 0.85;
     for (const s of this.tailSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 2.6, 0, 1) * 0.7;
     for (const s of this.fogSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 2.6, 0, 1) * 0.8;
+    for (const s of this.barSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 3, 0, 1) * 0.8;
   }
 
   dispose() {

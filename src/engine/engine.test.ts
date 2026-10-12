@@ -179,6 +179,24 @@ describe('pricing', () => {
     );
     expect(g?.detail).toBe('Doors: race number 27; rear: none');
   });
+  it('only fits mods to bodies that take them and drops misfits on a body change', () => {
+    expect(availability('mods', ['snorkel'], 'in', 'sedan')).toEqual({
+      ok: false,
+      reason: 'The snorkel does not fit the Sedan.',
+    });
+    expect(setOption(build({ body: 'cruiser' }), 'mods', ['snorkel', 'lift']).ok).toBe(true);
+    const r = setOption(build({ body: 'cruiser', mods: ['snorkel', 'widebody'] }), 'body', 'coupe');
+    if (!r.ok || !r.changed) throw new Error('expected change');
+    expect(r.build.mods).toEqual(['widebody']);
+    expect(r.prev.mods).toEqual(['snorkel', 'widebody']);
+  });
+  it('prices mods, exhaust and underglow', () => {
+    const base = optionsUSD(build({ body: 'pickup', exhaust: 'hidden' }));
+    expect(
+      optionsUSD(build({ body: 'pickup', exhaust: 'quad', mods: ['tonneau'], glow: 'ice' })) - base,
+    ).toBe(1200 + 1400 + 1100);
+    expect(normalize({ glow: 'neon' }).glow).toBe('none');
+  });
   it('rejects an unknown body style', () => {
     expect(setOption(build(), 'body', 'tank' as Build['body']).ok).toBe(false);
     expect(normalize({ body: 'tank' }).body).toBe('coupe');

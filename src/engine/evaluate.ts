@@ -1,6 +1,9 @@
 import {
   ACCENTS,
+  AMBIENT_PRESETS,
   BODY_TYPES,
+  EXHAUSTS,
+  MODS,
   SEATINGS,
   AMBIENT_MODES,
   CALIPERS,
@@ -49,6 +52,8 @@ export const OPTION_VALUES: Partial<Record<OptionKey, string[]>> = {
   accent: Object.keys(ACCENTS),
   spoiler: Object.keys(SPOILERS),
   grille: Object.keys(GRILLES),
+  exhaust: Object.keys(EXHAUSTS),
+  glow: ['none', ...Object.keys(AMBIENT_PRESETS)],
   sig: Object.keys(LIGHT_SIGNATURES),
   ltint: Object.keys(LAMP_TINTS),
   seatMat: Object.keys(SEAT_MATERIALS),
@@ -80,6 +85,9 @@ export function evaluate(b: Build): Evaluation {
     }
     available[key] = row;
   }
+  available.mods = Object.fromEntries(
+    Object.keys(MODS).map((m) => [m, availability('mods', [m] as Build['mods'], b.region, b.body)]),
+  );
   available.packs = Object.fromEntries(
     Object.keys(PACKS).map((p) => [p, availability('packs', [p] as Build['packs'], b.region)]),
   );

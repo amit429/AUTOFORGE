@@ -3,7 +3,8 @@
     "model": "Halden Vesper GT (fictional)",
     "basePriceUSD": 92400,
     "customPaintPriceUSD": 4900,
-    "priceNote": "All prices in USD before conversion. The base price comes from the body style. Display price = usd * region.rate * region.tax, rounded (1000 for INR/JPY, 10 otherwise). Representative values only."
+    "priceNote": "All prices in USD before conversion. The base price comes from the body style. Display price = usd * region.rate * region.tax, rounded (1000 for INR/JPY, 10 otherwise). Representative values only.",
+    "underglowPriceUSD": 1100
   },
   "bodyTypes": {
     "sedan": {
@@ -596,6 +597,146 @@
       "p": 0
     }
   },
+  "mods": {
+    "lift": {
+      "n": "Lift kit",
+      "d": "Raises the body 60 mm for more clearance and a taller stance.",
+      "p": 2600,
+      "bodies": [
+        "compact",
+        "suv",
+        "cruiser",
+        "pickup"
+      ],
+      "g": "stance"
+    },
+    "lowered": {
+      "n": "Lowered suspension",
+      "d": "Drops the body 30 mm for a tighter, road-hugging stance.",
+      "p": 1800,
+      "bodies": [
+        "sedan",
+        "hatch",
+        "coupe",
+        "convertible",
+        "supercar"
+      ],
+      "g": "stance"
+    },
+    "widebody": {
+      "n": "Wide-body kit",
+      "d": "Bolt-on flares over every wheel arch, finished to match your accent parts.",
+      "p": 7400,
+      "bodies": [
+        "sedan",
+        "hatch",
+        "coupe",
+        "convertible",
+        "supercar",
+        "pickup",
+        "cruiser"
+      ],
+      "g": "stance"
+    },
+    "scoop": {
+      "n": "Bonnet scoop",
+      "d": "A raised air scoop on the bonnet, painted to match.",
+      "p": 700,
+      "bodies": [
+        "sedan",
+        "hatch",
+        "coupe",
+        "convertible",
+        "supercar",
+        "pickup"
+      ],
+      "g": "stance"
+    },
+    "rack": {
+      "n": "Roof rack",
+      "d": "Roof rails with three crossbars for boxes, boards and bikes.",
+      "p": 900,
+      "bodies": [
+        "hatch",
+        "compact",
+        "suv",
+        "cruiser",
+        "mpv",
+        "pickup"
+      ],
+      "g": "utility"
+    },
+    "lightbar": {
+      "n": "LED light bar",
+      "d": "A full-width light bar across the top of the windscreen. It lights with the headlamps.",
+      "p": 1300,
+      "bodies": [
+        "compact",
+        "suv",
+        "cruiser",
+        "pickup"
+      ],
+      "g": "utility"
+    },
+    "bullbar": {
+      "n": "Bull bar",
+      "d": "A tubular steel guard across the front.",
+      "p": 1500,
+      "bodies": [
+        "suv",
+        "cruiser",
+        "pickup"
+      ],
+      "g": "utility"
+    },
+    "snorkel": {
+      "n": "Snorkel",
+      "d": "A raised air intake up the windscreen pillar for deep water crossings.",
+      "p": 800,
+      "bodies": [
+        "cruiser",
+        "pickup"
+      ],
+      "g": "utility"
+    },
+    "spare": {
+      "n": "Tailgate spare wheel",
+      "d": "A full-size spare carried on the tailgate.",
+      "p": 600,
+      "bodies": [
+        "compact",
+        "cruiser"
+      ],
+      "g": "utility"
+    },
+    "tonneau": {
+      "n": "Bed cover",
+      "d": "A flat, lockable cover over the load bed.",
+      "p": 1400,
+      "bodies": [
+        "pickup"
+      ],
+      "g": "utility"
+    }
+  },
+  "exhausts": {
+    "hidden": {
+      "n": "Hidden",
+      "p": 0
+    },
+    "twin": {
+      "n": "Twin",
+      "p": 0
+    },
+    "quad": {
+      "n": "Quad",
+      "p": 1200
+    },
+    "centre": {
+      "n": "Centre",
+      "p": 900
+    }
+  },
   "lightSignatures": {
     "blade": {
       "n": "Blade",
@@ -1117,6 +1258,12 @@
       "d": "Set the roof, the accent parts around the body, the rear aero and the grille."
     },
     {
+      "id": "mods",
+      "g": "Exterior",
+      "n": "Mods",
+      "d": "Stance, armour and kit. What fits depends on the body you chose."
+    },
+    {
       "id": "lights",
       "g": "Exterior",
       "n": "Lights",
@@ -1180,6 +1327,9 @@
     "accent": "black",
     "spoiler": "none",
     "grille": "honey",
+    "mods": [],
+    "exhaust": "twin",
+    "glow": "none",
     "sig": "blade",
     "ltint": "ice",
     "vlt": 70,

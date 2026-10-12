@@ -2,6 +2,9 @@ import {
   ACCENTS,
   AMBIENT_MODES,
   BODY_TYPES,
+  EXHAUSTS,
+  MODS,
+  UNDERGLOW_USD,
   SEATINGS,
   CALIPERS,
   CUSTOM_PAINT_USD,
@@ -47,6 +50,8 @@ export function optionsUSD(b: Build): number {
     ACCENTS[b.accent].p +
     spoilerUSD(b) +
     GRILLES[b.grille].p +
+    EXHAUSTS[b.exhaust].p +
+    (b.glow === 'none' ? 0 : UNDERGLOW_USD) +
     LIGHT_SIGNATURES[b.sig].p +
     SEATINGS[b.seating].p +
     SEAT_MATERIALS[b.seatMat].p +
@@ -54,6 +59,7 @@ export function optionsUSD(b: Build): number {
     TRIMS[b.trim].p +
     AMBIENT_MODES[b.ambMode].p;
   for (const k of b.packs) p += PACKS[k].p;
+  for (const m of b.mods) p += MODS[m].p;
   return p;
 }
 
