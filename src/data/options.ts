@@ -193,6 +193,8 @@ export interface BodyType extends Priced {
 
 export interface Seating extends Priced {
   d: string;
+  /** Number of seats in the layout. */
+  seats: number;
 }
 
 /** Body styles. `p` is the full base price of the car in USD for that body. */

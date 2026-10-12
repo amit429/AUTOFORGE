@@ -112,32 +112,38 @@
     "two": {
       "n": "Two seats",
       "d": "Just the driver and one passenger, with the space behind given to luggage.",
-      "p": 0
+      "p": 0,
+      "seats": 2
     },
     "twoPlusTwo": {
       "n": "2+2",
       "d": "Two front seats and two occasional rear seats for short trips.",
-      "p": 0
+      "p": 0,
+      "seats": 4
     },
     "five": {
       "n": "Five seats",
       "d": "Two front seats and a three-seat rear bench.",
-      "p": 0
+      "p": 0,
+      "seats": 5
     },
     "lounge": {
       "n": "Four-seat lounge",
       "d": "Two rear captain's chairs with a centre console between them.",
-      "p": 4800
+      "p": 4800,
+      "seats": 4
     },
     "six": {
       "n": "Six captain's chairs",
       "d": "Three rows of two individual chairs with a walkway between.",
-      "p": 3200
+      "p": 3200,
+      "seats": 6
     },
     "seven": {
       "n": "Seven seats",
       "d": "A three-seat middle bench and two more seats in a third row.",
-      "p": 1900
+      "p": 1900,
+      "seats": 7
     }
   },
   "paints": {

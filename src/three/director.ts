@@ -15,10 +15,12 @@ import { imageFor, useUploads } from '@/store/uploads';
 import { hotspotsFor, partLabelsFor, type Hotspot, type PartLabel } from './anchors';
 import { CameraRig, POSES, fitPose, type FrameName } from './camera';
 import { CarModel } from './car/CarModel';
-import { PAINT_DEMO, storyAt } from './story';
+import { PAINT_DEMO, revealAt, storyAt } from './story';
 import { LIGHTS, buildStudio, studioEnvironment, themeStudio, type Studio } from './studio';
 
 export interface OverlayElements {
+  /** True while labels are shown by the reveal story rather than the exploded view. */
+  revealLabels?: boolean;
   hotspots: (HTMLButtonElement | null)[];
   labels: (HTMLButtonElement | null)[];
   lines: (SVGLineElement | null)[];
@@ -27,8 +29,7 @@ export interface OverlayElements {
   setLabelsOn: (on: boolean) => void;
 }
 
-export const orbitAllowed = (screen: Screen, view: View) =>
-  (screen === 'config' && view !== 'blueprint') || screen === 'summary';
+export const orbitAllowed = (screen: Screen, view: View) => screen === 'config' && view !== 'blueprint';
 
 const frameOf = (s: Screen): FrameName =>
   s === 'config' ? 'config' : s === 'summary' ? 'summary' : s === 'region' ? 'region' : 'none';
@@ -43,6 +44,13 @@ export class StageDirector {
   private labels: PartLabel[] = [];
   private env: THREE.Texture;
   private story = { p: 0, intro: 0, demoOn: false, demoI: 0, demoCall: null as gsap.core.Tween | null };
+  /** Reveal story progress plus a blend from wherever the camera was when the screen opened. */
+  private reveal = {
+    p: 0,
+    blend: 1,
+    from: { theta: 0, phi: 1, r: 9, tx: 0, ty: 0.55, ox: 0, oy: 0 },
+    labels: false,
+  };
   private cleanups: (() => void)[] = [];
   private v = new THREE.Vector3();
   private w = new THREE.Vector3();
@@ -293,6 +301,11 @@ export class StageDirector {
       gsap.to(car.parts, { e: 0, duration: dur(0.9), ease: 'power3.inOut', overwrite: 'auto' });
       gsap.to(car.fx, { cut: 0, duration: dur(0.9), ease: 'power3.inOut', overwrite: 'auto' });
     }
+    if (from === 'summary') {
+      this.setRevealLabels(false);
+      gsap.to(car.parts, { e: 0, duration: dur(0.9), ease: 'power3.inOut', overwrite: 'auto' });
+      gsap.to(car.fx, { cut: 0, duration: dur(0.9), ease: 'power3.inOut', overwrite: 'auto' });
+    }
     if (from === 'config' && to !== 'config') {
       this.overlays.setLabelsOn(false);
       gsap.to(this.gl.domElement, { opacity: 1, duration: dur(0.4) });
@@ -324,8 +337,18 @@ export class StageDirector {
     }
     if (to === 'summary') {
       car.restorePaint(false);
-      rig.setFrame('summary');
-      rig.flyTo(this.pose('summary'), 2);
+      // The reveal story takes over the camera, blending in from the current view.
+      gsap.killTweensOf(rig.cam);
+      const rv = this.reveal;
+      rv.p = useUi.getState().revealT;
+      const c = rig.cam;
+      const target = this.fitStory(revealAt(rv.p, isMobile()));
+      let theta = c.theta;
+      while (theta - target.theta > Math.PI) theta -= Math.PI * 2;
+      while (target.theta - theta > Math.PI) theta += Math.PI * 2;
+      rv.from = { theta, phi: c.phi, r: c.r, tx: c.tx, ty: c.ty, ox: c.ox, oy: c.oy };
+      rv.blend = 0;
+      gsap.to(rv, { blend: 1, duration: dur(1.8), ease: 'power3.inOut' });
       if (!prefersReducedMotion()) {
         const { key, hemi } = this.studio;
         gsap.fromTo(
@@ -345,7 +368,22 @@ export class StageDirector {
 
   resize() {
     const s = useUi.getState().screen;
-    if (s !== 'landing') this.rig.setFrame(frameOf(s), 0);
+    if (s !== 'landing' && s !== 'summary') this.rig.setFrame(frameOf(s), 0);
+  }
+
+  /** Scales an authored (coupe-sized) story frame to the current body. */
+  private fitStory<T extends { r: number; tx: number; ty: number }>(k: T): T {
+    const g = this.car.geo;
+    const ls = g.length / 4.78;
+    const hs = g.height / 1.32;
+    return { ...k, r: k.r * Math.max(ls, Math.sqrt(hs)), tx: k.tx * ls, ty: k.ty * hs };
+  }
+
+  private setRevealLabels(on: boolean) {
+    if (this.reveal.labels === on) return;
+    this.reveal.labels = on;
+    this.overlays.revealLabels = on;
+    this.overlays.setLabelsOn(on);
   }
 
   /* -------------------------------------------------------------- frame */
@@ -376,14 +414,33 @@ export class StageDirector {
       else if (!near && st.demoOn) this.stopDemo(true);
     }
 
+    if (screen === 'summary') {
+      const rv = this.reveal;
+      rv.p += (useUi.getState().revealT - rv.p) * Math.min(1, dt * 4.5);
+      const k = this.fitStory(revealAt(rv.p, isMobile()));
+      const b = rv.blend * rv.blend * (3 - 2 * rv.blend);
+      const f = rv.from;
+      Object.assign(rig.cam, {
+        theta: f.theta + (k.theta - f.theta) * b,
+        phi: f.phi + (k.phi - f.phi) * b,
+        r: f.r + (k.r - f.r) * b,
+        tx: f.tx + (k.tx - f.tx) * b,
+        ty: f.ty + (k.ty - f.ty) * b,
+        tz: 0,
+        ox: f.ox + (k.ox - f.ox) * b,
+        oy: f.oy + (k.oy - f.oy) * b,
+      });
+      for (const p of car.parts) p.e = k.explode * b;
+      car.fx.cut = k.cut * b;
+      this.setRevealLabels(Math.abs(rv.p - 3) < 0.3 && b > 0.9);
+    }
+
     const auto =
       prefersReducedMotion() || rig.dragging
         ? 0
-        : screen === 'summary'
-          ? 0.14
-          : screen === 'config' && view === 'studio' && rig.idle > 8
-            ? 0.05
-            : 0;
+        : screen === 'config' && view === 'studio' && rig.idle > 8
+          ? 0.05
+          : 0;
     rig.step(dt, { orbit: orbitAllowed(screen, view), autoSpin: auto });
     car.tick(t);
     this.studio.turntable.rotation.y += dt * 0.03;
@@ -414,7 +471,9 @@ export class StageDirector {
       el.style.pointerEvents = vis ? 'auto' : 'none';
       el.tabIndex = vis ? 0 : -1;
     });
-    if (view !== 'exploded' || screen !== 'config') return;
+    const labelsShown =
+      (view === 'exploded' && screen === 'config') || (screen === 'summary' && this.reveal.labels);
+    if (!labelsShown) return;
     const c = this.project(this.centre, W, H);
     const mob = isMobile();
     this.labels.forEach((l, i) => {

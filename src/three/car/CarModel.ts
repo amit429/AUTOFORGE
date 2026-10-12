@@ -2079,6 +2079,11 @@ export class CarModel {
     for (const s of this.headSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 3.2, 0, 1) * 0.85;
     for (const s of this.tailSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 2.6, 0, 1) * 0.7;
     for (const s of this.fogSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 2.6, 0, 1) * 0.8;
+    // Roof-mounted kit leaves with the roof in the cabin view.
+    for (const id of ['rack', 'lightbar'] as const) {
+      const grp = this.modGroups[id];
+      if (grp) grp.visible = this.build.mods.includes(id) && cut < 0.25;
+    }
     for (const s of this.barSegs) s.sp.material.opacity = clamp(s.mat.emissiveIntensity / 3, 0, 1) * 0.8;
   }
 

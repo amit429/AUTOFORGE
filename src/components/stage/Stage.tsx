@@ -9,6 +9,7 @@ import { dur } from '@/lib/motion';
 import { useBuild } from '@/store/build';
 import { useUi } from '@/store/ui';
 import { HOTSPOT_LABELS, PART_LABEL_TEXT } from '@/three/anchors';
+import { useGo } from '@/components/shell/useGo';
 import { BlueprintView } from './BlueprintView';
 import { orbitAllowed, type OverlayElements } from '@/three/director';
 import { Scene } from './Scene';
@@ -48,6 +49,7 @@ export function Stage() {
   const screen = useUi((s) => s.screen);
   const view = useBuild((s) => s.view);
   const orbit = orbitAllowed(screen, view);
+  const go = useGo();
   // Pixel ratio starts capped at 2 and drops when the frame rate cannot hold.
   const [dpr, setDpr] = useState(2);
 
@@ -94,6 +96,8 @@ export function Stage() {
             onClick={() => {
               useBuild.getState().setView('studio');
               useBuild.getState().goStep(stepIndex(l.step));
+              // From the reveal, a label takes you back into the configurator at that part.
+              if (useUi.getState().screen === 'summary') void go('config');
             }}
           >
             <span className={styles.card}>

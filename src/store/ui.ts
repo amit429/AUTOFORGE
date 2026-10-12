@@ -7,6 +7,8 @@ interface UiState {
   screen: Screen;
   /** Landing scroll progress, 0..5 across the six chapters. */
   storyT: number;
+  /** Reveal scroll progress, 0..5 across its six chapters. */
+  revealT: number;
   /** Set when the loader hands over to the hero, which starts the camera intro. */
   introStarted: boolean;
   lightsOn: boolean;
@@ -21,6 +23,7 @@ interface UiState {
 export const useUi = create<UiState>(() => ({
   screen: 'landing',
   storyT: 0,
+  revealT: 0,
   introStarted: false,
   lightsOn: false,
   pendingRegion: null,
