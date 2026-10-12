@@ -55,6 +55,13 @@ export interface BodySpec {
   grilleY: number;
   grilleH: number;
   grilleW: number;
+  /** Seat rows: 1 (two seats), 2 or 3. */
+  rows: 1 | 2 | 3;
+  /** Open load bed (pickup): [xFront, xRear] and its floor height. */
+  bed?: [number, number];
+  bedFloor?: number;
+  /** Fabric roof (convertible) instead of a hard roof skin. */
+  softTop?: boolean;
 }
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -155,10 +162,16 @@ export class BodyGeometry {
     return Math.min(f(df), f(dr));
   }
 
-  /** Cabin opening blend: 1 across the cabin, 0 outside, smooth at the ends. */
-  private opening(x: number) {
+  /** Carved openings: the cabin tub, plus the load bed on a pickup. Returns blend and floor height. */
+  private opening(x: number): { o: number; floor: number } {
     const s = this.spec;
-    return smooth(s.cBase - 0.02, s.cBase + 0.18, x) * smooth(s.aBase - 0.12, s.aBase - 0.3, x);
+    const cabin = smooth(s.cBase - 0.02, s.cBase + 0.18, x) * smooth(s.aBase - 0.12, s.aBase - 0.3, x);
+    if (s.bed) {
+      const [b0, b1] = s.bed;
+      const bed = smooth(b0 + 0.02, b0 - 0.12, x) * smooth(b1 - 0.02, b1 + 0.12, x);
+      if (bed > cabin) return { o: bed, floor: s.bedFloor ?? this.floorY + 0.2 };
+    }
+    return { o: cabin, floor: this.floorY };
   }
 
   /**
@@ -180,12 +193,12 @@ export class BodyGeometry {
     let z = hw * sgnPow(c, e) * (1 - s.tumble * Math.max(0, sn) ** 1.5);
     let y = cy + hh * sgnPow(sn, e);
     if (carve) {
-      const o = this.opening(x);
+      const { o, floor } = this.opening(x);
       if (o > 0 && sn > 0) {
         // Points on the top surface inside the side walls drop to the floor, forming the tub.
         const inner = this.innerHalf(x);
         const m = smooth(inner + 0.02, inner - 0.02, Math.abs(z)) * o;
-        y = y - m * (y - (this.floorY - 0.01));
+        y = y - m * (y - (floor - 0.01));
       }
     }
     return new THREE.Vector3(x, y, z);
@@ -288,12 +301,21 @@ export class BodyGeometry {
     return this.grid(70, 40, s.cBase, s.aBase, (x, u) => this.glassPoint(x, u), false);
   }
 
-  /** Roof skin over the top of the glasshouse. */
-  roofGeometry() {
+  /** Extent of the roof skin: [x0, x1] and how far down the sides it wraps (arch u range). */
+  roofSpan(): { x0: number; x1: number; u0: number } {
     const s = this.spec;
-    const x0 = s.roofRear - (s.roofRear - s.cBase) * 0.28;
-    const x1 = s.roofFront + (s.aBase - s.roofFront) * 0.18;
-    return this.grid(50, 24, x0, x1, (x, u) => this.glassPoint(x, 0.16 + u * 0.68, 0.012), false);
+    if (s.softTop) return { x0: s.cBase + 0.03, x1: s.roofFront + (s.aBase - s.roofFront) * 0.12, u0: 0.06 };
+    return {
+      x0: s.roofRear - (s.roofRear - s.cBase) * 0.28,
+      x1: s.roofFront + (s.aBase - s.roofFront) * 0.18,
+      u0: 0.16,
+    };
+  }
+
+  /** Roof skin over the top of the glasshouse (a fabric hood that wraps lower on a soft top). */
+  roofGeometry() {
+    const { x0, x1, u0 } = this.roofSpan();
+    return this.grid(50, 24, x0, x1, (x, u) => this.glassPoint(x, u0 + u * (1 - 2 * u0), 0.012), false);
   }
 
   /** Section parameter range covering a door on one side (from the sill up to the shoulder). */
@@ -441,9 +463,7 @@ export class BodyGeometry {
 
   /** Side outline of the roof skin. */
   roofOutline(): { x: number; y: number }[] {
-    const s = this.spec;
-    const x0 = s.roofRear - (s.roofRear - s.cBase) * 0.28;
-    const x1 = s.roofFront + (s.aBase - s.roofFront) * 0.18;
+    const { x0, x1 } = this.roofSpan();
     const out: { x: number; y: number }[] = [];
     for (let i = 0; i <= 40; i++) {
       const x = x0 + ((x1 - x0) * i) / 40;

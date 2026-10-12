@@ -138,6 +138,14 @@ export class CarModel {
   private dashMat: THREE.MeshPhysicalMaterial;
   private trimMat: THREE.MeshPhysicalMaterial;
   private ambMats: THREE.MeshBasicMaterial[] = [];
+  /** Canvas hood for soft tops. */
+  private fabricMat = new THREE.MeshStandardMaterial({
+    color: lin('#1b1c1f'),
+    roughness: 0.96,
+    metalness: 0,
+    transparent: true,
+    side: THREE.DoubleSide,
+  });
   /** Window frames: pillars and seals, faded out with the glass in the cabin view. */
   private frameMat!: THREE.MeshStandardMaterial;
 
@@ -365,6 +373,19 @@ export class CarModel {
     }
     this.addPart('glass', glassGroup, [0, 0.55, 0]);
 
+    if (s.bed) {
+      // Pickup bed: a dark liner on the floor of the carved bed.
+      const [b0, b1] = s.bed;
+      const liner2 = new THREE.MeshStandardMaterial({ color: lin('#16171a'), roughness: 0.9 });
+      this.disposables.push(liner2);
+      const bw = g.innerHalf((b0 + b1) / 2) * 2 - 0.02;
+      this.addPart(
+        'bed',
+        mesh(boxAt(b0 - b1 - 0.1, 0.02, bw, (b0 + b1) / 2, (s.bedFloor ?? 0.9) + 0.005, 0), liner2),
+        [-0.2, 0.25, 0],
+      );
+    }
+    this.disposables.push(this.fabricMat);
     this.roofMesh = mesh(g.roofGeometry(), this.roofBlackMat);
     this.roofMesh.renderOrder = 2;
     this.addPart('roof', this.roofMesh, [0, 0.95, 0]);
@@ -670,18 +691,22 @@ export class CarModel {
         [0, 0.45, 0],
       );
     }
-    const rs = fs - 0.9;
-    if (rs - 0.4 > s.cBase - 0.35) {
+    // Bench rows behind the front seats, as many as the body has room for.
+    const bench = (name: string, x: number, off: [number, number, number]) =>
       cabinPart(
-        'seat_rear',
+        name,
         [
-          ...seat(rs, 0, inner * 1.5),
-          mesh(boxAt(0.08, 0.11, 0.26, rs - 0.38, floor + 0.465, sz * 0.92, 0.22), this.seatMat),
-          mesh(boxAt(0.08, 0.11, 0.26, rs - 0.38, floor + 0.465, -sz * 0.92, 0.22), this.seatMat),
+          ...seat(x, 0, inner * 1.5),
+          mesh(boxAt(0.08, 0.11, 0.26, x - 0.38, floor + 0.465, sz * 0.92, 0.22), this.seatMat),
+          mesh(boxAt(0.08, 0.11, 0.26, x - 0.38, floor + 0.465, -sz * 0.92, 0.22), this.seatMat),
         ],
-        [-0.15, 0.36, 0],
+        off,
       );
-    }
+    const fits = (x: number) => x - 0.4 > s.cBase - 0.35;
+    const rs = fs - 0.9;
+    if (s.rows >= 2 && fits(rs)) bench('seat_rear', rs, [-0.15, 0.36, 0]);
+    const ts = rs - 0.86;
+    if (s.rows >= 3 && fits(ts)) bench('seat_third', ts, [-0.3, 0.3, 0]);
     const ambDash = new THREE.MeshBasicMaterial({ color: lin(this.build.amb), toneMapped: false });
     const ambDoor = new THREE.MeshBasicMaterial({ color: lin(this.build.amb), toneMapped: false });
     this.ambMats.push(ambDash, ambDoor);
@@ -909,6 +934,7 @@ export class CarModel {
   /* ------------------------------------------------------------ updaters */
 
   private roofMatFor(k: Build['roof']) {
+    if (this.geo.spec.softTop) return this.fabricMat;
     return k === 'body' ? this.roofBodyMat : k === 'carbon' ? this.roofCarbonMat : this.roofBlackMat;
   }
   private accentMat() {
