@@ -1,7 +1,9 @@
 'use client';
 
+import { PerformanceMonitor } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import gsap from 'gsap';
+import { useState } from 'react';
 import { STEPS } from '@/data/options';
 import { dur } from '@/lib/motion';
 import { useBuild } from '@/store/build';
@@ -46,23 +48,31 @@ export function Stage() {
   const screen = useUi((s) => s.screen);
   const view = useBuild((s) => s.view);
   const orbit = orbitAllowed(screen, view);
+  // Pixel ratio starts capped at 2 and drops when the frame rate cannot hold.
+  const [dpr, setDpr] = useState(2);
 
   return (
     <div
       className={`${styles.stage} ${orbit ? styles.grab : ''}`}
-      role="img"
-      aria-label="3D view of your car. Drag to rotate, scroll to zoom."
       data-cursor={orbit ? 'Drag' : undefined}
       style={{ visibility: screen === 'doc' ? 'hidden' : 'visible' }}
     >
       <Canvas
         className={styles.gl}
         frameloop={screen === 'doc' ? 'never' : 'always'}
-        dpr={[1, 2]}
+        dpr={[1, dpr]}
         shadows="percentage"
         camera={{ fov: 30, near: 0.1, far: 120, position: [0, 3, 18] }}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        role="img"
+        aria-label="3D view of your car. Drag to rotate, scroll to zoom, or use the arrow keys."
       >
+        <PerformanceMonitor
+          onDecline={() => setDpr(1)}
+          onIncline={() => setDpr(2)}
+          flipflops={3}
+          onFallback={() => setDpr(1)}
+        />
         <Scene overlays={overlays} />
       </Canvas>
       <svg className={styles.leaders} aria-hidden="true">

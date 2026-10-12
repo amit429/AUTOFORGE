@@ -4,7 +4,7 @@
   --bg: #d8dbde;
   --bg-2: #f0f1f2;
   --ink: #14171c;
-  --ink-2: #535a64;
+  --ink-2: #4b525c;
   --ink-3: #7c838d;
   --line: rgba(20, 23, 28, 0.13);
   --line-2: rgba(20, 23, 28, 0.26);
@@ -12,6 +12,8 @@
   --panel-solid: #eceeef;
   --chip: rgba(20, 23, 28, 0.06);
   --clay: #9e7038;
+  /* Clay for small text: deep enough for WCAG AA on the primer background. */
+  --clay-ink: #7a531f;
   --clay-soft: rgba(158, 112, 56, 0.16);
   --datum: #2c4bdb;
   --warn: #b4441c;
@@ -46,6 +48,7 @@
     --panel-solid: #1c2128;
     --chip: rgba(229, 231, 234, 0.07);
     --clay: #d3ab70;
+    --clay-ink: #d3ab70;
     --clay-soft: rgba(211, 171, 112, 0.16);
     --datum: #8399ff;
     --warn: #f07a4e;
@@ -67,6 +70,7 @@
   --panel-solid: #1c2128;
   --chip: rgba(229, 231, 234, 0.07);
   --clay: #d3ab70;
+  --clay-ink: #d3ab70;
   --clay-soft: rgba(211, 171, 112, 0.16);
   --datum: #8399ff;
   --warn: #f07a4e;

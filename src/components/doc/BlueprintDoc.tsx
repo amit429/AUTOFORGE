@@ -48,7 +48,7 @@ const Tiles = ({ cols = 2, items }: { cols?: 2 | 3; items: [string, string][] })
 );
 
 const Table = ({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) => (
-  <div className={`${s.tblWrap} rv`}>
+  <div className={`${s.tblWrap} rv`} tabIndex={0} role="region" aria-label={`Table: ${head.join(', ')}`}>
     <table>
       <thead>
         <tr>
@@ -555,7 +555,7 @@ export function BlueprintDoc() {
               ]}
             />
             <h3 className="rv">Rule shape</h3>
-            <pre className={`${s.code} rv`}>{`{
+            <pre className={`${s.code} rv`} tabIndex={0} aria-label="Example rule">{`{
   "id": "wheel.size.22",
   "price": { "USD": 2900 },
   "availability": { "exclude": ["IN", "JP"] },

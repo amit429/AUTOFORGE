@@ -92,7 +92,7 @@ export function RevealScreen() {
             advisor can turn this build into an order.
           </p>
         </div>
-        <div className={styles.body}>
+        <div className={styles.body} tabIndex={0} role="region" aria-label="Specification">
           {ev.lineItems.map((g) => (
             <div key={g.title} className={styles.group}>
               <h4 data-row>{g.title}</h4>

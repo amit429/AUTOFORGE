@@ -29,7 +29,7 @@
 }
 .k {
   font-size: 12.5px;
-  color: var(--clay);
+  color: var(--clay-ink);
 }
 .head h2 {
   font-family: var(--font-d);
@@ -54,7 +54,7 @@
 }
 .group h4 {
   font-size: 12.5px;
-  color: var(--ink-3);
+  color: var(--ink-2);
   margin-bottom: 4px;
 }
 .row {

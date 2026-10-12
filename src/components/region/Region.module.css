@@ -100,7 +100,7 @@
   padding: 3px 9px;
   border-radius: var(--r-pill);
   background: var(--clay-soft);
-  color: var(--clay);
+  color: var(--clay-ink);
 }
 .go {
   margin-top: 22px;

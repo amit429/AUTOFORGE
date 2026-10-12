@@ -51,7 +51,7 @@
   font-family: var(--font-d);
   font-size: 10px;
   padding-top: 4px;
-  color: var(--ink-3);
+  color: var(--ink-2);
   width: 18px;
 }
 .toc a.on {
@@ -59,7 +59,7 @@
   background: var(--chip);
 }
 .toc a.on span {
-  color: var(--clay);
+  color: var(--ink);
 }
 .main {
   min-width: 0;
@@ -91,7 +91,7 @@
 .meta b {
   display: block;
   font-size: 12.5px;
-  color: var(--ink-3);
+  color: var(--ink-2);
   font-weight: 400;
 }
 .meta span {
@@ -110,7 +110,7 @@
 .n {
   font-family: var(--font-d);
   font-size: 13px;
-  color: var(--clay);
+  color: var(--clay-ink);
   padding-top: 12px;
 }
 .sec > header h2 {
@@ -193,11 +193,11 @@
   font-family: var(--font-d);
   font-size: 15px;
   background: var(--clay-soft);
-  color: var(--clay);
+  color: var(--clay-ink);
 }
 .persona small {
   display: block;
-  color: var(--ink-3);
+  color: var(--ink-2);
   font-size: 12.5px;
   margin-top: 3px;
 }
@@ -302,7 +302,7 @@
   content: '+';
   display: inline-block;
   width: 16px;
-  color: var(--clay);
+  color: var(--clay-ink);
   font-family: var(--font-d);
   font-size: 11px;
 }
