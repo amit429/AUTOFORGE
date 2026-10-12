@@ -1,0 +1,45 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 26px;
+  border-radius: var(--r-pill);
+  font-weight: 500;
+  font-size: 15px;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.35s;
+  white-space: nowrap;
+}
+.primary {
+  background: var(--ink);
+  color: var(--bg);
+}
+.primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--clay);
+  border-radius: inherit;
+  transform: translateY(101%);
+  transition: transform 0.5s var(--e-out);
+  z-index: -1;
+}
+.primary:hover::before {
+  transform: none;
+}
+.ghost {
+  border: 1px solid var(--line-2);
+}
+.ghost:hover {
+  border-color: var(--ink);
+}
+.arr {
+  width: 16px;
+  height: 16px;
+}
+.sm {
+  padding: 12px 18px;
+  font-size: 14px;
+}

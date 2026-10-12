@@ -133,7 +133,7 @@ export const useBuild = create<BuildState>((set, get) => ({
     if (!keys.length) return;
     set((s) => ({
       build: r.build,
-      history: label ? [...s.history, snapshotEntry(label, r.prev, r.next)] : s.history,
+      history: label ? [...s.history, snapshotEntry(label, r.prev, r.next, r.build)] : s.history,
       change: change(keys, build),
     }));
   },

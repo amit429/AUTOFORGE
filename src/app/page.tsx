@@ -1,26 +1,27 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Stage } from '@/components/stage/Stage';
-import { ThemeToggle } from '@/components/chrome/ThemeToggle';
-import { STEPS } from '@/data/options';
-import { useBuild } from '@/store/build';
+import { useGo } from '@/components/shell/useGo';
+import { Button } from '@/components/ui/Button';
 import { useUi } from '@/store/ui';
 
-// Temporary Phase 2 harness: drives the store so every transition can be checked by hand.
+// Placeholder hero; the loader and scroll story arrive in Phase 4.
 export default function Home() {
-  const step = useBuild((s) => s.step);
-  useEffect(() => {
-    useUi.setState({ screen: 'config', introStarted: true });
-    (window as unknown as { __halden: unknown }).__halden = { build: useBuild, ui: useUi };
-  }, []);
+  const go = useGo();
+  useEffect(() => useUi.setState({ introStarted: true }), []);
   return (
-    <>
-      <Stage />
-      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 50, display: 'flex', gap: 8 }}>
-        <button onClick={() => useBuild.getState().goStep(step + 1)}>Next ({STEPS[step]?.n})</button>
-        <ThemeToggle />
+    <section style={{ position: 'fixed', left: '7vw', top: '30vh', maxWidth: 640 }}>
+      <h1
+        className="d"
+        style={{ fontSize: 'clamp(38px,6.2vw,92px)', lineHeight: 1.02, letterSpacing: '-0.035em' }}
+      >
+        Built panel by panel, by&nbsp;you.
+      </h1>
+      <div style={{ marginTop: 40 }}>
+        <Button magnetic arrow cursor="Start" onClick={() => go('region')}>
+          Start your build
+        </Button>
       </div>
-    </>
+    </section>
   );
 }

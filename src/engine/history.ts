@@ -1,6 +1,6 @@
 import type { Build, OptionKey } from '@/data/options';
 import { applyPatch, type Patch } from './build';
-import { KEY_NAMES, optionLabel } from './labels';
+import { KEY_NAMES, chipColour, optionLabel } from './labels';
 import { applyRegion } from './regions';
 
 /**
@@ -13,16 +13,25 @@ export interface HistoryEntry {
   label: string;
   prev: Patch;
   next: Patch;
+  /** Colour dot for the history chip, taken from the build right after the change. */
+  colour: string | null;
 }
 
 let seq = 0;
 
 export function singleEntry(key: OptionKey, prev: Patch, next: Patch, after: Build): HistoryEntry {
-  return { id: ++seq, key, label: `${KEY_NAMES[key]}: ${optionLabel(key, after).name}`, prev, next };
+  return {
+    id: ++seq,
+    key,
+    label: `${KEY_NAMES[key]}: ${optionLabel(key, after).name}`,
+    prev,
+    next,
+    colour: chipColour(key, after),
+  };
 }
 
-export function snapshotEntry(label: string, prev: Patch, next: Patch): HistoryEntry {
-  return { id: ++seq, key: '*', label, prev, next };
+export function snapshotEntry(label: string, prev: Patch, next: Patch, after: Build): HistoryEntry {
+  return { id: ++seq, key: '*', label, prev, next, colour: chipColour('*', after) };
 }
 
 /** What the "Undid …" toast says. */

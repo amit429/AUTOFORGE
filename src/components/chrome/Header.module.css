@@ -54,6 +54,9 @@
 .nav button.on {
   color: var(--bg);
 }
+.nav button:not(.on):hover {
+  color: var(--ink);
+}
 .pill {
   position: absolute;
   inset: 0;

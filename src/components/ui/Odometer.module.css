@@ -1,0 +1,32 @@
+.odo {
+  display: inline-flex;
+  font-family: var(--font-d);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  height: 1.25em;
+  line-height: 1.25em;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.dg {
+  display: inline-block;
+  height: 1.25em;
+  overflow: hidden;
+  position: relative;
+}
+.dg > span {
+  display: flex;
+  flex-direction: column;
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.dg i {
+  font-style: normal;
+  height: 1.25em;
+  display: block;
+  text-align: center;
+}
+.sy {
+  display: inline-block;
+  white-space: pre;
+}

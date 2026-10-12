@@ -224,7 +224,7 @@ describe('history', () => {
     });
     expect(snap.build.region).toBe('in');
     expect(snap.next).toEqual({ paint: 'vesper', finish: 'gloss', caliper: 'graphite', seatCol: 'oxblood' });
-    const e = snapshotEntry('Mood: Noir', snap.prev, snap.next);
+    const e = snapshotEntry('Mood: Noir', snap.prev, snap.next, snap.build);
     const back = undoEntry(snap.build, e);
     expect(back).toEqual(b);
     expect(undoMessage(e)).toBe('Undid mood: noir.');

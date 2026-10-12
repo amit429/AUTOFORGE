@@ -82,3 +82,8 @@ p {
     transition-duration: 0.001ms !important;
   }
 }
+
+#screen {
+  position: relative;
+  z-index: 10;
+}
